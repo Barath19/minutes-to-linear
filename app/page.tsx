@@ -135,10 +135,15 @@ export default function Page() {
   const busy = phase === 'extracting' || phase === 'creating';
 
   return (
-    <main className="aura min-h-dvh">
-      <div className="mx-auto grid min-h-dvh max-w-[1500px] grid-cols-1 gap-6 p-5 lg:grid-cols-[440px_1fr]">
+    <main className="aura min-h-dvh overflow-x-hidden lg:h-dvh lg:overflow-hidden">
+      {/*
+        `min-w-0` on both columns is load-bearing: grid children default to
+        min-width:auto, so long unbroken note text would otherwise widen the
+        track and push the layout off screen.
+      */}
+      <div className="mx-auto grid min-h-dvh max-w-[1500px] grid-cols-1 gap-6 p-5 lg:h-dvh lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         {/* Notes */}
-        <section className="flex min-h-0 flex-col gap-3">
+        <section className="flex min-h-0 min-w-0 flex-col gap-3">
           <header className="flex items-center gap-2.5">
             <div className="grid size-7 place-items-center rounded-md bg-brand text-[13px] font-semibold">
               M
@@ -167,7 +172,7 @@ export default function Page() {
             disabled={busy}
             spellCheck={false}
             placeholder="Paste your meeting notes…"
-            className="min-h-[320px] flex-1 resize-none rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-brand disabled:opacity-60"
+            className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-brand disabled:opacity-60"
           />
 
           <div className="flex items-center gap-2">
@@ -204,7 +209,7 @@ export default function Page() {
         </section>
 
         {/* Tickets */}
-        <section className="flex min-h-0 flex-col gap-3">
+        <section className="flex min-h-0 min-w-0 flex-col gap-3">
           <div className="flex min-h-9 items-center gap-3">
             <h2 className="text-[13px] font-medium">
               {extraction?.meetingTitle ?? 'Tickets'}
@@ -230,7 +235,7 @@ export default function Page() {
 
           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
             {tickets.length === 0 && (
-              <div className="grid h-64 place-items-center rounded-lg border border-dashed border-edge">
+              <div className="grid h-full min-h-64 place-items-center rounded-lg border border-dashed border-edge">
                 <p className="max-w-xs text-center text-[13px] leading-relaxed text-dim">
                   {phase === 'extracting'
                     ? 'Reading the notes…'
