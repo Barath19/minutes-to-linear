@@ -35,7 +35,7 @@ type TeamInfo = {
 };
 
 export default function Page() {
-  const [notes, setNotes] = useState(SAMPLE_NOTES);
+  const [notes, setNotes] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [extraction, setExtraction] = useState<Partial<Extraction> | null>(null);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
@@ -253,8 +253,18 @@ export default function Page() {
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] tracking-wider text-dim uppercase">Meeting notes</span>
-            {team?.notion?.connected && (
-              <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              {!notes.trim() && (
+                <button
+                  onClick={() => setNotes(SAMPLE_NOTES)}
+                  disabled={busy}
+                  className="rounded-md border border-edge px-2 py-1 text-[11px] text-dim transition-colors hover:text-text disabled:opacity-40"
+                  title="Load an example meeting, so the app is usable without Notion"
+                >
+                  Use sample
+                </button>
+              )}
+              {team?.notion?.connected && (
                 <NotionImport
                   disabled={busy}
                   onImport={(text) => {
@@ -262,8 +272,8 @@ export default function Page() {
                     reset();
                   }}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <textarea
@@ -271,7 +281,7 @@ export default function Page() {
             onChange={(e) => setNotes(e.target.value)}
             disabled={busy}
             spellCheck={false}
-            placeholder="Paste your meeting notes…"
+            placeholder="Paste your meeting notes, or import them from Notion…"
             className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-brand disabled:opacity-60"
           />
 
