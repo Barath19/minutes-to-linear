@@ -1,58 +1,83 @@
 {
-  "generatedAt": "2026-09-13T21:47:43.456Z",
+  "generatedAt": "2026-09-13T21:51:25.522Z",
   "model": "claude-sonnet-5",
-  "trials": 1,
-  "durationSeconds": 55.9,
+  "trials": 3,
+  "durationSeconds": 107.6,
   "total": {
-    "passed": 38,
-    "total": 38,
+    "passed": 114,
+    "total": 114,
     "percent": 100
   },
   "byCheck": {
     "coverage": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "no invented work": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "ticket count in range": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "follow-up count in range": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "source quotes grounded": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "no invented assignees": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "tickets well-formed": {
-      "pass": 5,
+      "pass": 15,
       "fail": 0
     },
     "priority inferred": {
-      "pass": 2,
+      "pass": 6,
       "fail": 0
     },
     "blocking captured": {
-      "pass": 1,
+      "pass": 3,
       "fail": 0
     }
   },
   "judge": {
     "model": "gemma3:4b",
-    "judged": 9,
-    "faithfulness": 4.89,
-    "specificity": 3.78,
-    "usefulness": 4.11,
-    "concerns": []
+    "judged": 27,
+    "faithfulness": 4.74,
+    "specificity": 3.85,
+    "usefulness": 4,
+    "concerns": [
+      {
+        "ticketId": "t3",
+        "title": "Reduce noise in alerting thresholds",
+        "faithfulness": 5,
+        "specificity": 3,
+        "usefulness": 1,
+        "comment": "The ticket accurately reflects the notes but lacks detail and context."
+      },
+      {
+        "ticketId": "t5",
+        "title": "Track and resolve staging database full-disk issue",
+        "faithfulness": 3,
+        "specificity": 3,
+        "usefulness": 4,
+        "comment": "The ticket accurately reflects the core issue but misses key details about the urgency and specific action required."
+      },
+      {
+        "ticketId": "t3",
+        "title": "Reduce noise in alerting thresholds",
+        "faithfulness": 5,
+        "specificity": 3,
+        "usefulness": 2,
+        "comment": "The ticket accurately reflects the notes but could be more specific about the alerting thresholds."
+      }
+    ]
   },
   "results": [
     {
@@ -140,8 +165,92 @@
       "verdicts": []
     },
     {
-      "fixture": "everything-deferred",
-      "trial": 1,
+      "fixture": "no-commitments",
+      "trial": 2,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-0)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "0 (expected 0-0)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "0 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "no-commitments",
+      "trial": 3,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-0)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "0 (expected 0-0)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "0 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "status-only",
+      "trial": 2,
       "checks": [
         {
           "name": "coverage",
@@ -161,12 +270,54 @@
         {
           "name": "follow-up count in range",
           "passed": true,
-          "detail": "3 (expected 1-3)"
+          "detail": "0 (expected 0-0)"
         },
         {
           "name": "source quotes grounded",
           "passed": true,
-          "detail": "3 verified against the notes"
+          "detail": "0 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "status-only",
+      "trial": 3,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "0 (expected 0-0)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "0 verified against the notes"
         },
         {
           "name": "no invented assignees",
@@ -229,11 +380,11 @@
       "verdicts": [
         {
           "ticketId": "t1",
-          "title": "Roll back production deploy",
+          "title": "Roll back the production deploy",
           "faithfulness": 5,
           "specificity": 4,
           "usefulness": 3,
-          "comment": "The ticket accurately reflects the meeting notes and provides a reasonable level of detail."
+          "comment": "The ticket accurately reflects the immediate actions and priorities discussed in the meeting notes."
         },
         {
           "ticketId": "t2",
@@ -245,11 +396,167 @@
         },
         {
           "ticketId": "t3",
-          "title": "Investigate and tune noisy alerting thresholds",
+          "title": "Reduce noise in alerting thresholds",
           "faithfulness": 5,
           "specificity": 3,
+          "usefulness": 1,
+          "comment": "The ticket accurately reflects the notes but lacks detail and context."
+        }
+      ]
+    },
+    {
+      "fixture": "everything-deferred",
+      "trial": 1,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "3 (expected 1-3)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "3 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "everything-deferred",
+      "trial": 2,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "3 (expected 1-3)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "3 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "urgency-signals",
+      "trial": 2,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 3 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "3 (expected 3-4)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "3 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "priority inferred",
+          "passed": true,
+          "detail": "2 correct"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "3 valid"
+        }
+      ],
+      "verdicts": [
+        {
+          "ticketId": "t1",
+          "title": "Roll back the production deploy",
+          "faithfulness": 5,
+          "specificity": 5,
           "usefulness": 3,
-          "comment": "The ticket accurately reflects the meeting notes but could be more specific about the alerting thresholds."
+          "comment": "The ticket accurately reflects the meeting notes and is quite specific."
+        },
+        {
+          "ticketId": "t2",
+          "title": "Write post-incident writeup for production degradation",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 3,
+          "comment": "The ticket accurately reflects the meeting notes and includes a reasonable level of detail."
+        },
+        {
+          "ticketId": "t3",
+          "title": "Reduce noise in alerting thresholds",
+          "faithfulness": 4,
+          "specificity": 3,
+          "usefulness": 3,
+          "comment": "The ticket accurately reflects the conversation but could benefit from more detail about the thresholds themselves."
         }
       ]
     },
@@ -317,8 +624,324 @@
           "title": "Migrate mobile clients off hardcoded session cookies to OIDC",
           "faithfulness": 5,
           "specificity": 5,
-          "usefulness": 4,
+          "usefulness": 5,
           "comment": "The ticket accurately reflects the meeting notes and provides a clear action item."
+        },
+        {
+          "ticketId": "t3",
+          "title": "Write incident response runbook and commit it to the repo",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects Maya’s instruction and provides sufficient detail for Dev to execute the task."
+        },
+        {
+          "ticketId": "t4",
+          "title": "Document the token bucket rate limiter decision",
+          "faithfulness": 4,
+          "specificity": 3,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects the core decisions made in the meeting but could benefit from more detail about the rate limiter."
+        },
+        {
+          "ticketId": "t5",
+          "title": "Track and resolve staging database full-disk issue",
+          "faithfulness": 3,
+          "specificity": 3,
+          "usefulness": 4,
+          "comment": "The ticket accurately reflects the core issue but misses key details about the urgency and specific action required."
+        },
+        {
+          "ticketId": "t6",
+          "title": "Cap billing webhook retries at 5",
+          "faithfulness": 5,
+          "specificity": 5,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects all the key decisions and actions from the meeting notes."
+        }
+      ]
+    },
+    {
+      "fixture": "everything-deferred",
+      "trial": 3,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 0 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "2 (expected 1-3)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "2 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "0 valid"
+        }
+      ],
+      "verdicts": []
+    },
+    {
+      "fixture": "urgency-signals",
+      "trial": 3,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 3 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "3 (expected 3-4)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "0 (expected 0-1)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "3 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "priority inferred",
+          "passed": true,
+          "detail": "2 correct"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "3 valid"
+        }
+      ],
+      "verdicts": [
+        {
+          "ticketId": "t1",
+          "title": "Roll back production deploy",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 3,
+          "comment": "The ticket accurately reflects the meeting notes and provides a reasonable level of detail."
+        },
+        {
+          "ticketId": "t2",
+          "title": "Write post-incident writeup for production degradation",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 3,
+          "comment": "The ticket accurately reflects the meeting notes and provides a reasonable level of detail."
+        },
+        {
+          "ticketId": "t3",
+          "title": "Reduce noise in alerting thresholds",
+          "faithfulness": 5,
+          "specificity": 3,
+          "usefulness": 2,
+          "comment": "The ticket accurately reflects the notes but could be more specific about the alerting thresholds."
+        }
+      ]
+    },
+    {
+      "fixture": "platform-sync",
+      "trial": 2,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 6 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "6 (expected 5-8)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "1 (expected 1-2)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "7 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "priority inferred",
+          "passed": true,
+          "detail": "2 correct"
+        },
+        {
+          "name": "blocking captured",
+          "passed": true,
+          "detail": "1 blocked, all refs resolve"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "6 valid"
+        }
+      ],
+      "verdicts": [
+        {
+          "ticketId": "t1",
+          "title": "Implement server-side OIDC to replace session cookies",
+          "faithfulness": 5,
+          "specificity": 5,
+          "usefulness": 4,
+          "comment": "The ticket accurately reflects the meeting notes and provides a good level of detail."
+        },
+        {
+          "ticketId": "t2",
+          "title": "Implement mobile OIDC support (post server rollout)",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 3,
+          "comment": "The ticket accurately reflects the key discussion points and assigns ownership, though it could benefit from more detail about the retry limit issue."
+        },
+        {
+          "ticketId": "t3",
+          "title": "Write incident response runbook and store it with deploy config",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects Maya’s instruction and provides sufficient detail for Dev to execute the task."
+        },
+        {
+          "ticketId": "t4",
+          "title": "Document the token bucket rate limiter decision",
+          "faithfulness": 4,
+          "specificity": 3,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects Maya's statement but could benefit from more detail about the rate limiter itself."
+        },
+        {
+          "ticketId": "t5",
+          "title": "Clear and monitor full staging database",
+          "faithfulness": 4,
+          "specificity": 3,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects Maya's instruction to track the database issue, but could be more specific about the action needed."
+        },
+        {
+          "ticketId": "t6",
+          "title": "Cap billing webhook retries at 5",
+          "faithfulness": 5,
+          "specificity": 5,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects all the key decisions and actions from the meeting notes."
+        }
+      ]
+    },
+    {
+      "fixture": "platform-sync",
+      "trial": 3,
+      "checks": [
+        {
+          "name": "coverage",
+          "passed": true,
+          "detail": "all 6 covered"
+        },
+        {
+          "name": "no invented work",
+          "passed": true,
+          "detail": "clean"
+        },
+        {
+          "name": "ticket count in range",
+          "passed": true,
+          "detail": "6 (expected 5-8)"
+        },
+        {
+          "name": "follow-up count in range",
+          "passed": true,
+          "detail": "1 (expected 1-2)"
+        },
+        {
+          "name": "source quotes grounded",
+          "passed": true,
+          "detail": "7 verified against the notes"
+        },
+        {
+          "name": "no invented assignees",
+          "passed": true,
+          "detail": "all real"
+        },
+        {
+          "name": "priority inferred",
+          "passed": true,
+          "detail": "2 correct"
+        },
+        {
+          "name": "blocking captured",
+          "passed": true,
+          "detail": "1 blocked, all refs resolve"
+        },
+        {
+          "name": "tickets well-formed",
+          "passed": true,
+          "detail": "6 valid"
+        }
+      ],
+      "verdicts": [
+        {
+          "ticketId": "t1",
+          "title": "Implement server-side OIDC authentication",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 5,
+          "comment": "The ticket accurately reflects the key decisions and assignments from the meeting."
+        },
+        {
+          "ticketId": "t2",
+          "title": "Migrate mobile clients off session cookies to OIDC",
+          "faithfulness": 5,
+          "specificity": 4,
+          "usefulness": 4,
+          "comment": "The ticket accurately reflects the key decisions and assignments from the meeting."
         },
         {
           "ticketId": "t3",
@@ -326,23 +949,23 @@
           "faithfulness": 5,
           "specificity": 4,
           "usefulness": 5,
-          "comment": "The ticket accurately reflects the key decisions and action items from the meeting."
+          "comment": "The ticket accurately reflects Maya’s instruction and provides a clear action item."
         },
         {
           "ticketId": "t4",
-          "title": "Document token bucket rate limiter decision",
+          "title": "Document the token bucket rate limiter decision",
           "faithfulness": 5,
           "specificity": 3,
           "usefulness": 4,
-          "comment": "The ticket accurately reflects the core decisions made in the meeting but could benefit from more detail about the rate limiter."
+          "comment": "The ticket accurately reflects the core decisions but could be more specific about the rate limiter."
         },
         {
           "ticketId": "t5",
-          "title": "Clear and monitor full staging database",
+          "title": "Track and resolve full staging database",
           "faithfulness": 4,
           "specificity": 3,
           "usefulness": 4,
-          "comment": "The ticket accurately reflects the core issues discussed, though the title could be more specific."
+          "comment": "The ticket accurately reflects the core issues discussed, though the description could be more concise."
         },
         {
           "ticketId": "t6",

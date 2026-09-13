@@ -108,12 +108,25 @@ Fixtures deliberately include three meetings that should produce **nothing**: pu
 status updates, a coffee chat, and a roadmap review where every item was deferred.
 Over-extraction is the failure mode that makes this category of tool useless.
 
-**Latest run: 38/38 checks passing** across 5 fixtures. Full output in
-[`evals/results.json`](evals/results.json).
+**Latest run: 114/114 across 5 fixtures × 3 trials.** Every check passed on every
+trial — no intermittent failures. Full output in [`evals/results.json`](evals/results.json).
 
-> A perfect score on a first run usually means the checks are too lenient rather than
-> the agent being perfect. `--trials 3` is the honest way to read it: it surfaces
-> checks that pass intermittently, which matters more than any single run.
+| Check | Pass rate |
+|---|---|
+| coverage | 15/15 |
+| no invented work | 15/15 |
+| source quotes grounded | 15/15 |
+| no invented assignees | 15/15 |
+| ticket / follow-up counts in range | 15/15 |
+| tickets well-formed | 15/15 |
+| priority inferred | 6/6 |
+| blocking captured | 3/3 |
+
+> Read this carefully rather than generously. Stability across trials is the meaningful
+> result — it shows the behaviour is repeatable, not that one lucky run happened. A
+> uniform 100% still raises the question of whether the thresholds are demanding enough,
+> which is why the judge below exists: it scores quality the pass/fail checks cannot see,
+> and it does **not** return full marks.
 
 ### Layer 2 — LLM as judge (`evals/judge.ts`)
 
@@ -125,15 +138,26 @@ The judge is deliberately a **different model family from the one being graded**
 model scoring its own output is not independent evidence and shares its blind spots.
 
 ```
-LLM judge (gemma3:4b, 9 tickets)
-  faithfulness  █████  4.89/5
-  specificity   ████░  3.78/5
-  usefulness    ████░  4.11/5
+LLM judge (gemma3:4b, 27 tickets)
+  faithfulness  █████  4.74/5
+  specificity   ████░  3.85/5
+  usefulness    ████░  4.00/5
+
+flagged for review:
+  f5 s3 u1  Reduce noise in alerting thresholds
+            accurately reflects the notes but lacks detail and context
+  f3 s3 u4  Track and resolve staging database full-disk issue
+            misses key details about urgency and the specific action required
 ```
 
-The interesting result is that **specificity scores lowest** — titles are faithful but
-less concrete than they could be. That is a real weakness no structural check would
-have found.
+**Specificity scores lowest, consistently across trials** — titles are faithful but
+less concrete than they should be. Three of 27 tickets were flagged, and reading them
+back, the judge is right: *"Reduce noise in alerting thresholds"* does not say which
+thresholds or by how much.
+
+That is a real weakness, found by the layer that returns a distribution rather than a
+pass mark. It is the clearest argument for having both layers: the structural checks
+score 100% on exactly the tickets the judge is unhappy with.
 
 It is a signal, not an oracle: a 4B model is noisy, so scores are reported as a
 distribution and low-scoring tickets are surfaced for a human rather than failing the
