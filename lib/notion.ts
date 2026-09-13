@@ -96,7 +96,7 @@ export async function getPageText(pageId: string): Promise<{ title: string; text
 
   async function walk(blockId: string, depth: number) {
     // Guard against pathological nesting rather than recursing forever.
-    if (depth > 4) return;
+    if (depth > 8) return;
 
     let cursor: string | undefined;
     do {
@@ -109,20 +109,24 @@ export async function getPageText(pageId: string): Promise<{ title: string; text
       for (const raw of res.results) {
         const block = raw as unknown as Record<string, unknown>;
         const type = String(block.type ?? '');
-        if (!TEXTUAL_BLOCKS.has(type)) continue;
 
-        const text = richText(block, type).trim();
-        if (text) {
-          const indent = '  '.repeat(depth);
-          const bullet =
-            type === 'bulleted_list_item' || type === 'to_do'
-              ? '- '
-              : type === 'numbered_list_item'
-                ? '1. '
-                : '';
-          lines.push(`${indent}${bullet}${text}`);
+        if (TEXTUAL_BLOCKS.has(type)) {
+          const text = richText(block, type).trim();
+          if (text) {
+            const indent = '  '.repeat(depth);
+            const bullet =
+              type === 'bulleted_list_item' || type === 'to_do'
+                ? '- '
+                : type === 'numbered_list_item'
+                  ? '1. '
+                  : '';
+            lines.push(`${indent}${bullet}${text}`);
+          }
         }
 
+        // Descend regardless of type. Containers that hold no text of their own
+        // (columns, synced blocks, and Notion's `transcription` block from AI
+        // meeting recordings) still wrap content that must not be skipped.
         if (block.has_children) await walk(String(block.id), depth + 1);
       }
 
