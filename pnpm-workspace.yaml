@@ -3,6 +3,8 @@
 enableGlobalVirtualStore: false
 
 allowBuilds:
+  '@swc/core': true
   esbuild: true
-  unrs-resolver: true
+  protobufjs: true
   sharp: true
+  unrs-resolver: true

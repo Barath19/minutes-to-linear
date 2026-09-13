@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Keep the template committed; real secrets stay local.
 !.env.example
+
+# Temporal dev server state
+.temporal/
