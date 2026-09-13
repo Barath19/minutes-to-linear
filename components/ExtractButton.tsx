@@ -40,7 +40,7 @@ export function ExtractButton({
         onClick={fireNow}
         disabled={disabled}
         whileTap={disabled ? undefined : { scale: 0.99 }}
-        className="relative flex-1 overflow-hidden rounded-lg bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-35"
+        className="relative flex-1 overflow-hidden rounded-lg bg-accent px-4 py-2.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-35"
       >
         {/* The fill. Linear easing so the bar reads as a countdown. */}
         {armed && !busy && (

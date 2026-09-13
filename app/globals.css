@@ -1,19 +1,32 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #0b0b0f;
-  --color-surface: #131318;
-  --color-surface-2: #1a1a21;
-  --color-edge: #26262f;
-  --color-text: #e8e8ed;
-  --color-dim: #8a8a99;
-  --color-brand: #5e6ad2;
-  --color-brand-soft: #8b93e8;
+  /* Black, white, purple. Everything else is a tint of one of the three. */
+  --color-bg: #08080a;
+  --color-surface: #101014;
+  --color-surface-2: #17171d;
+  --color-edge: #24242e;
+  --color-edge-bright: #34343f;
 
-  --color-urgent: #f2664e;
-  --color-high: #f2a33c;
-  --color-medium: #7a7ae8;
-  --color-low: #6b7280;
+  --color-text: #f4f4f7;
+  --color-dim: #85858f;
+
+  --color-accent: #7c5cff;
+  --color-accent-bright: #a18cff;
+  --color-accent-deep: #5836d6;
+
+  /* Priority is a purple ramp cooling to grey rather than a traffic light. */
+  --color-p-urgent: #b9a5ff;
+  --color-p-high: #8f74ff;
+  --color-p-medium: #6b53c9;
+  --color-p-low: #4a4a58;
+
+  /*
+   * The one exception to the three-colour rule. A failure that looks like every
+   * other state is a usability bug, so errors keep a hue of their own —
+   * desaturated enough to sit inside the palette rather than fight it.
+   */
+  --color-danger: #e06c75;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-geist), ui-monospace, monospace;
@@ -29,7 +42,7 @@
     font-family: var(--font-sans);
   }
   ::selection {
-    background: color-mix(in oklab, var(--color-brand) 45%, transparent);
+    background: color-mix(in oklab, var(--color-accent) 40%, transparent);
   }
   textarea,
   input {
@@ -46,16 +59,24 @@
   height: 7px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2e2e39;
+  background: var(--color-edge-bright);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Faint aurora so the page is not a flat slab. */
+/* A single purple wash, so the page has depth without a second hue. */
 .aura {
   background-image:
-    radial-gradient(60rem 30rem at 15% -5%, color-mix(in oklab, var(--color-brand) 18%, transparent), transparent),
-    radial-gradient(50rem 26rem at 95% 5%, color-mix(in oklab, #3ba3a3 12%, transparent), transparent);
+    radial-gradient(
+      58rem 30rem at 12% -8%,
+      color-mix(in oklab, var(--color-accent) 16%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      44rem 26rem at 96% 4%,
+      color-mix(in oklab, var(--color-accent-deep) 14%, transparent),
+      transparent
+    );
 }

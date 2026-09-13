@@ -229,7 +229,7 @@ export default function Page() {
         {/* Notes */}
         <section className="flex min-h-0 min-w-0 flex-col gap-3">
           <header className="flex flex-wrap items-center gap-2.5">
-            <div className="grid size-7 place-items-center rounded-md bg-brand text-[13px] font-semibold">
+            <div className="grid size-7 place-items-center rounded-md bg-accent text-[13px] font-semibold">
               N
             </div>
             <h1 className="text-[15px] font-semibold">
@@ -307,7 +307,7 @@ export default function Page() {
             disabled={busy}
             spellCheck={false}
             placeholder="Paste your meeting notes, or import them from Notion…"
-            className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-brand disabled:opacity-60"
+            className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-accent disabled:opacity-60"
           />
 
           <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function Page() {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="rounded-lg border border-red-500/40 bg-red-500/10 p-2.5 text-[12px] text-red-300"
+                className="rounded-lg border border-danger/45 bg-danger/10 p-2.5 text-[12px] text-danger"
               >
                 {problem}
               </motion.p>
@@ -355,7 +355,7 @@ export default function Page() {
               </span>
             )}
             {phase === 'done' && (
-              <span className="text-[12px] text-emerald-300">
+              <span className="text-[12px] text-accent-bright">
                 {createdCount} created in Linear
               </span>
             )}

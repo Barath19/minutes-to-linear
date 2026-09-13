@@ -104,7 +104,7 @@ export function ApprovalBar({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   onClick={onCancelArm}
-                  className="rounded-lg border border-edge px-3 py-2.5 text-[13px] text-dim transition-colors hover:border-red-500/50 hover:text-red-300"
+                  className="rounded-lg border border-edge px-3 py-2.5 text-[13px] text-dim transition-colors hover:border-danger/55 hover:text-danger"
                 >
                   Cancel
                 </motion.button>
@@ -115,11 +115,11 @@ export function ApprovalBar({
                 disabled={total === 0 && meetingCount === 0}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.985 }}
-                className="relative flex items-center gap-2 overflow-hidden rounded-lg bg-emerald-500 px-5 py-2.5 text-[13px] font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-25"
+                className="relative flex items-center gap-2 overflow-hidden rounded-lg bg-accent px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-25"
               >
                 {isArmed && (
                   <motion.span
-                    className="absolute inset-y-0 left-0 bg-black/20"
+                    className="absolute inset-y-0 left-0 bg-white/25"
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
                     transition={{ duration: ARM_MS / 1000, ease: 'linear' }}
@@ -159,7 +159,7 @@ export function ApprovalBar({
             </div>
             <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-edge">
               <motion.div
-                className="h-full bg-emerald-500"
+                className="h-full bg-accent-bright"
                 initial={{ width: 0 }}
                 animate={{ width: `${((createdCount + failedCount) / Math.max(1, total)) * 100}%` }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -177,10 +177,10 @@ export function ApprovalBar({
             className="flex flex-wrap items-center gap-3"
           >
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-medium text-emerald-300">
+              <p className="text-[13px] font-medium text-accent-bright">
                 {createdCount} issue{createdCount === 1 ? '' : 's'} created
                 {failedCount > 0 && (
-                  <span className="text-red-300"> · {failedCount} failed</span>
+                  <span className="text-danger"> · {failedCount} failed</span>
                 )}
               </p>
               <p className="mt-0.5 text-[11.5px] text-dim">
@@ -192,7 +192,7 @@ export function ApprovalBar({
                         href={slack.permalink}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-emerald-300 underline underline-offset-2"
+                        className="text-accent-bright underline underline-offset-2"
                       >
                         view message
                       </a>
@@ -201,7 +201,7 @@ export function ApprovalBar({
                     'Digest posted to Slack.'
                   )
                 ) : slack?.error ? (
-                  <span className="text-amber-300">
+                  <span className="text-dim">
                     Issues created, but Slack digest failed: {slack.error}
                   </span>
                 ) : (

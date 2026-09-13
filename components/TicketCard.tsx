@@ -5,12 +5,13 @@ import { PRIORITIES, type Priority, type Ticket } from '@/lib/types';
 
 export type TicketState = 'draft' | 'creating' | 'created' | 'error';
 
+/** Intensity, not hue: brighter purple reads as more urgent at a glance. */
 const PRIORITY_DOT: Record<Priority, string> = {
-  urgent: 'bg-urgent',
-  high: 'bg-high',
-  medium: 'bg-medium',
-  low: 'bg-low',
-  none: 'bg-edge',
+  urgent: 'bg-p-urgent',
+  high: 'bg-p-high',
+  medium: 'bg-p-medium',
+  low: 'bg-p-low',
+  none: 'bg-edge-bright',
 };
 
 export function TicketCard({
@@ -44,11 +45,11 @@ export function TicketCard({
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className={`group rounded-lg border bg-surface transition-colors ${
         state === 'created'
-          ? 'border-emerald-500/40'
+          ? 'border-accent/45'
           : state === 'error'
-            ? 'border-red-500/50'
+            ? 'border-danger/55'
             : state === 'creating'
-              ? 'border-brand'
+              ? 'border-accent'
               : 'border-edge hover:border-edge/80'
       }`}
     >
@@ -58,7 +59,7 @@ export function TicketCard({
           disabled={locked}
           aria-label={included ? 'Exclude this ticket' : 'Include this ticket'}
           className={`mt-0.5 grid size-4 shrink-0 place-items-center rounded border transition-colors disabled:opacity-50 ${
-            included ? 'border-brand bg-brand text-white' : 'border-edge hover:border-dim'
+            included ? 'border-accent bg-accent text-white' : 'border-edge hover:border-dim'
           }`}
         >
           {included && (
@@ -81,7 +82,7 @@ export function TicketCard({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 rounded bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[11px] text-emerald-300 hover:bg-emerald-500/25"
+                className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-bright hover:bg-accent/25"
               >
                 {identifier}
               </a>
@@ -128,7 +129,7 @@ export function TicketCard({
 
             {blockedTitles.length > 0 && (
               <span
-                className="rounded border border-amber-500/40 px-1.5 py-0.5 text-[11px] text-amber-300/90"
+                className="rounded border border-edge-bright px-1.5 py-0.5 text-[11px] text-dim"
                 title={`Blocked by: ${blockedTitles.join(', ')}`}
               >
                 blocked ×{blockedTitles.length}
@@ -136,10 +137,10 @@ export function TicketCard({
             )}
 
             {state === 'creating' && (
-              <span className="ml-auto text-[11px] text-brand-soft">creating…</span>
+              <span className="ml-auto text-[11px] text-accent-bright">creating…</span>
             )}
             {state === 'error' && (
-              <span className="ml-auto max-w-[16rem] truncate text-[11px] text-red-400" title={error}>
+              <span className="ml-auto max-w-[16rem] truncate text-[11px] text-danger" title={error}>
                 {error}
               </span>
             )}

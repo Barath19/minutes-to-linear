@@ -107,7 +107,7 @@ export function NotionImport({
               {loading && <p className="px-3 py-4 text-[12px] text-dim">Loading…</p>}
 
               {!loading && error && (
-                <p className="px-3 py-3 text-[12px] leading-relaxed text-red-300">{error}</p>
+                <p className="px-3 py-3 text-[12px] leading-relaxed text-danger">{error}</p>
               )}
 
               {!loading && !error && pages?.length === 0 && (
@@ -137,7 +137,7 @@ export function NotionImport({
                       )}
                     </span>
                     {importing === page.id && (
-                      <span className="shrink-0 text-[10.5px] text-brand-soft">importing…</span>
+                      <span className="shrink-0 text-[10.5px] text-accent-bright">importing…</span>
                     )}
                   </button>
                 ))}

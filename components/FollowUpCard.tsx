@@ -34,9 +34,9 @@ export function FollowUpCard({
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className={`rounded-lg border p-3.5 ${
         booking?.ok
-          ? 'border-sky-500/40 bg-sky-500/[0.06]'
+          ? 'border-accent/45 bg-accent/[0.07]'
           : booking && !booking.ok
-            ? 'border-red-500/50 bg-surface'
+            ? 'border-danger/55 bg-surface'
             : 'border-edge bg-surface'
       }`}
     >
@@ -46,7 +46,7 @@ export function FollowUpCard({
           disabled={Boolean(booking) || pending}
           aria-label={included ? 'Skip this meeting' : 'Book this meeting'}
           className={`mt-0.5 grid size-4 shrink-0 place-items-center rounded border transition-colors disabled:opacity-50 ${
-            included ? 'border-sky-500 bg-sky-500 text-white' : 'border-edge hover:border-dim'
+            included ? 'border-accent-deep bg-accent-deep text-white' : 'border-edge hover:border-dim'
           }`}
         >
           {included && (
@@ -73,7 +73,7 @@ export function FollowUpCard({
                 href={booking.url}
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 rounded bg-sky-500/15 px-1.5 py-0.5 font-mono text-[11px] text-sky-300 hover:bg-sky-500/25"
+                className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-bright hover:bg-accent/25"
               >
                 booked
               </a>
@@ -89,9 +89,9 @@ export function FollowUpCard({
             <span className="rounded border border-edge px-1.5 py-0.5 text-dim">
               {followUp.durationMinutes} min
             </span>
-            {pending && <span className="ml-auto text-sky-300">finding a slot…</span>}
+            {pending && <span className="ml-auto text-accent-bright">finding a slot…</span>}
             {booking && !booking.ok && (
-              <span className="ml-auto max-w-[16rem] truncate text-red-400" title={booking.error}>
+              <span className="ml-auto max-w-[16rem] truncate text-danger" title={booking.error}>
                 {booking.error}
               </span>
             )}
