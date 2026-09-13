@@ -1,4 +1,5 @@
 # Neuva
+<img width="1110" height="439" alt="Screenshot 2026-09-14 at 01 10 51" src="https://github.com/user-attachments/assets/71c5b6c6-37f4-4dea-9e4e-107b52877630" />
 
 **An agent that reads a meeting, works out what it committed you to, and files it** — issues in
 Linear, follow-up meetings on your calendar, and a digest to the team. With a human approval
@@ -22,6 +23,9 @@ step before anything is written.
 
 **Architecture:** [`docs/architecture.excalidraw`](docs/architecture.excalidraw) —
 [open in Excalidraw](https://excalidraw.com/#json=zgc6EeuptA-23MxnWfsXG,4X_0lXJSR_jlhRWIQiv_bA)
+<img width="908" height="704" alt="Screenshot 2026-09-14 at 01 12 06" src="https://github.com/user-attachments/assets/954f221b-098a-4b9c-82b7-c3f3dbf3c01e" />
+<img width="1272" height="883" alt="Screenshot 2026-09-14 at 01 11 30" src="https://github.com/user-attachments/assets/7f49b49d-af91-432f-ba02-26a5fbdb5adb" />
+<img width="789" height="497" alt="Screenshot 2026-09-14 at 01 19 18" src="https://github.com/user-attachments/assets/2b54ae07-19f7-4008-82af-a472fe4e4aa6" />
 
 ---
 
