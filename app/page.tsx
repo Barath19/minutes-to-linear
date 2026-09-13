@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApprovalBar } from '@/components/ApprovalBar';
 import { FollowUpCard } from '@/components/FollowUpCard';
+import { NotionImport } from '@/components/NotionImport';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
@@ -25,6 +26,8 @@ type SlackInfo = { connected: boolean; team?: string; reason?: string };
 type TeamInfo = {
   connected: boolean;
   slack?: SlackInfo;
+  notion?: { connected: boolean; pageCount?: number; reason?: string };
+  cal?: { connected: boolean; name?: string; eventTypes?: number; reason?: string };
   teamName?: string;
   projectName?: string;
   projectConfigured?: boolean;
@@ -247,6 +250,21 @@ export default function Page() {
               {team?.slack?.connected ? (team.slack.team ?? 'Slack') : 'no Slack'}
             </span>
           </header>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] tracking-wider text-dim uppercase">Meeting notes</span>
+            {team?.notion?.connected && (
+              <div className="ml-auto">
+                <NotionImport
+                  disabled={busy}
+                  onImport={(text) => {
+                    setNotes(text);
+                    reset();
+                  }}
+                />
+              </div>
+            )}
+          </div>
 
           <textarea
             value={notes}

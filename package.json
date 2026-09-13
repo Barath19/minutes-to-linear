@@ -12,6 +12,7 @@
     "@ai-sdk/anthropic": "^4.0.53",
     "@base-ui/react": "^1.8.0",
     "@linear/sdk": "^95.0.0",
+    "@notionhq/client": "^5.26.0",
     "@number-flow/react": "^0.6.2",
     "@slack/web-api": "^8.1.1",
     "ai": "^7.0.99",
