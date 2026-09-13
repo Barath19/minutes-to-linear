@@ -19,6 +19,7 @@ export function ApprovalBar({
   slack,
   slackPosting,
   slackConfigured,
+  meetingCount = 0,
   onApprove,
   onReset,
 }: {
@@ -30,6 +31,7 @@ export function ApprovalBar({
   slack?: SlackOutcome | null;
   slackPosting?: boolean;
   slackConfigured?: boolean;
+  meetingCount?: number;
   onApprove: () => void;
   onReset: () => void;
 }) {
@@ -62,7 +64,15 @@ export function ApprovalBar({
           >
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-medium">
-                {total === 0 ? 'Nothing selected' : `Ready to create ${total} issue${total === 1 ? '' : 's'}`}
+                {total === 0 && meetingCount === 0
+                  ? 'Nothing selected'
+                  : [
+                      total > 0 ? `${total} issue${total === 1 ? '' : 's'}` : null,
+                      meetingCount > 0 ? `${meetingCount} meeting${meetingCount === 1 ? '' : 's'}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' and ')
+                      .replace(/^/, 'Ready to create ')}
                 {teamName && total > 0 && <span className="text-dim"> in {teamName}</span>}
               </p>
               <p className="mt-0.5 text-[11.5px] text-dim">
@@ -76,9 +86,9 @@ export function ApprovalBar({
 
             <motion.button
               onClick={onApprove}
-              disabled={total === 0}
-              whileHover={total === 0 ? undefined : { y: -1 }}
-              whileTap={total === 0 ? undefined : { scale: 0.985 }}
+              disabled={total === 0 && meetingCount === 0}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.985 }}
               className="flex items-center gap-2 rounded-lg bg-emerald-500 px-5 py-2.5 text-[13px] font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-25"
             >
               <svg viewBox="0 0 14 14" className="size-3.5" fill="none">
@@ -90,7 +100,7 @@ export function ApprovalBar({
                   strokeLinejoin="round"
                 />
               </svg>
-              Approve &amp; create in Linear
+              Approve &amp; run
             </motion.button>
           </motion.div>
         )}

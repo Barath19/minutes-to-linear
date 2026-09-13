@@ -1,8 +1,22 @@
 import { z } from 'zod';
+import {
+  calcomConfigured,
+  createBooking,
+  findSlot,
+  listEventTypes,
+  me as calcomMe,
+  pickEventType,
+} from '@/lib/calcom';
 import { createIssue, linearClient, linkBlockers, loadWorkspace } from '@/lib/linear';
 import { ndjsonStream } from '@/lib/ndjson';
 import { postDigest, slackConfigured } from '@/lib/slack';
-import { TicketSchema, type CreatedIssue, type CreateEvent } from '@/lib/types';
+import {
+  FollowUpSchema,
+  TicketSchema,
+  type BookingOutcome,
+  type CreatedIssue,
+  type CreateEvent,
+} from '@/lib/types';
 
 export const maxDuration = 300;
 
@@ -12,6 +26,7 @@ const BodySchema = z.object({
   meetingTitle: z.string().optional(),
   summary: z.string().optional(),
   decisions: z.array(z.string()).optional(),
+  followUps: z.array(FollowUpSchema).optional(),
   notifySlack: z.boolean().optional(),
 });
 
@@ -24,7 +39,7 @@ export async function POST(req: Request) {
     return Response.json({ error: 'LINEAR_API_KEY is not set' }, { status: 503 });
   }
 
-  const { tickets, meetingTitle, summary, decisions, notifySlack } = parsed.data;
+  const { tickets, meetingTitle, summary, decisions, followUps, notifySlack } = parsed.data;
 
   async function* events(): AsyncGenerator<CreateEvent> {
     const client = linearClient();
@@ -55,6 +70,55 @@ export async function POST(req: Request) {
 
     await linkBlockers(client, tickets, created);
 
+    // Follow-up meetings are booked against live availability. Like Slack, this
+    // stage is non-fatal: issues already created stay valid if booking fails.
+    const bookings: BookingOutcome[] = [];
+    if (calcomConfigured() && followUps?.length) {
+      try {
+        const user = await calcomMe();
+        const eventTypes = await listEventTypes(user.username);
+
+        for (const followUp of followUps) {
+          yield { type: 'booking.start', followUpId: followUp.id, title: followUp.title };
+          try {
+            const eventType = pickEventType(eventTypes, followUp.durationMinutes);
+            if (!eventType) throw new Error('no Cal.com event type available');
+
+            const slot = await findSlot(eventType.id, followUp.suggestedDate, user.timeZone);
+            if (!slot) throw new Error('no free slot in the next three weeks');
+
+            const booking = await createBooking(followUp, eventType.id, slot, {
+              name: user.name,
+              email: user.email,
+              timeZone: user.timeZone,
+            });
+            const result: BookingOutcome = { ...booking, ok: true };
+            bookings.push(result);
+            yield { type: 'booking.done', result };
+          } catch (err) {
+            const result: BookingOutcome = {
+              followUpId: followUp.id,
+              ok: false,
+              error: err instanceof Error ? err.message : String(err),
+            };
+            bookings.push(result);
+            yield { type: 'booking.done', result };
+          }
+        }
+      } catch (err) {
+        // Could not reach Cal.com at all; report once rather than per follow-up.
+        for (const followUp of followUps) {
+          const result: BookingOutcome = {
+            followUpId: followUp.id,
+            ok: false,
+            error: err instanceof Error ? err.message : String(err),
+          };
+          bookings.push(result);
+          yield { type: 'booking.done', result };
+        }
+      }
+    }
+
     // Notification is the last step and is deliberately non-fatal: issues that
     // already exist must not be invalidated by a failed Slack post.
     if (notifySlack !== false && slackConfigured() && created.size > 0) {
@@ -63,6 +127,7 @@ export async function POST(req: Request) {
         { meetingTitle: meetingTitle ?? '', summary: summary ?? '', decisions: decisions ?? [] },
         tickets,
         [...created.values()],
+        bookings.filter((b) => b.ok),
       );
       yield { type: 'slack.done', result };
     }

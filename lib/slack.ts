@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import type { CreatedIssue, Extraction, Ticket } from './types';
+import type { BookingOutcome, CreatedIssue, Extraction, Ticket } from './types';
 
 export type SlackResult = {
   ok: boolean;
@@ -44,6 +44,7 @@ export function buildDigest(
   extraction: Pick<Extraction, 'meetingTitle' | 'summary' | 'decisions'>,
   tickets: Ticket[],
   created: CreatedIssue[],
+  bookings: BookingOutcome[] = [],
 ) {
   const byTicketId = new Map(created.map((c) => [c.ticketId, c]));
 
@@ -74,6 +75,31 @@ export function buildDigest(
   // Slack rejects section text over 3000 chars, so the list is chunked.
   for (const chunk of chunkLines(lines, 2800)) {
     blocks.push({ type: 'section', text: { type: 'mrkdwn', text: chunk } });
+  }
+
+  if (bookings.length) {
+    blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text:
+          `*Booked*\n` +
+          bookings
+            .map((b) => {
+              const when = b.start
+                ? new Date(b.start).toLocaleString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : 'time TBC';
+              return `📅 <${b.url}|${b.title ?? 'Follow-up'}> — ${when}`;
+            })
+            .join('\n'),
+      },
+    });
   }
 
   if (extraction.decisions?.length) {
@@ -127,6 +153,7 @@ export async function postDigest(
   extraction: Pick<Extraction, 'meetingTitle' | 'summary' | 'decisions'>,
   tickets: Ticket[],
   created: CreatedIssue[],
+  bookings: BookingOutcome[] = [],
 ): Promise<SlackResult> {
   if (!slackConfigured()) {
     return { ok: false, error: 'Slack is not configured' };
@@ -136,7 +163,7 @@ export async function postDigest(
   const channel = slackChannel()!;
 
   try {
-    const { blocks, text } = buildDigest(extraction, tickets, created);
+    const { blocks, text } = buildDigest(extraction, tickets, created, bookings);
     const res = await web.chat.postMessage({
       channel,
       text,

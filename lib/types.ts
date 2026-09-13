@@ -41,6 +41,24 @@ export const TicketSchema = z.object({
 });
 export type Ticket = z.infer<typeof TicketSchema>;
 
+/**
+ * A meeting the notes say should happen, as distinct from work to be tracked.
+ * "Let's revisit after the auth work lands" is a follow-up, not a ticket.
+ */
+export const FollowUpSchema = z.object({
+  id: z.string().describe('Stable slug within the batch, e.g. "f1".'),
+  title: z.string().describe('What this meeting is for, e.g. "Revisit Postgres 17 upgrade".'),
+  reason: z.string().describe('One sentence on why the notes call for it.'),
+  suggestedDate: z
+    .string()
+    .describe(
+      'Earliest sensible date as YYYY-MM-DD. Interpret relative phrases ("next week", "after the sprint") against the meeting date. The real time is chosen from live availability.',
+    ),
+  durationMinutes: z.number().describe('15 or 30. Default 30.'),
+  sourceQuote: z.string().describe('The exact sentence in the notes that calls for this meeting.'),
+});
+export type FollowUp = z.infer<typeof FollowUpSchema>;
+
 export const ExtractionSchema = z.object({
   meetingTitle: z.string().describe('A short title for the meeting.'),
   summary: z.string().describe('Two sentences: what this meeting was actually about.'),
@@ -55,6 +73,11 @@ export const ExtractionSchema = z.object({
   tickets: z
     .array(TicketSchema)
     .describe('One ticket per action item above. Do not stop early, and do not invent work.'),
+  followUps: z
+    .array(FollowUpSchema)
+    .describe(
+      'Meetings the notes explicitly call for. Usually zero or one. Never invent one to seem useful.',
+    ),
 });
 export type Extraction = z.infer<typeof ExtractionSchema>;
 
@@ -102,8 +125,20 @@ export type SlackOutcome = {
   error?: string;
 };
 
+export type BookingOutcome = {
+  followUpId: string;
+  ok: boolean;
+  uid?: string;
+  title?: string;
+  start?: string;
+  url?: string;
+  error?: string;
+};
+
 export type CreateEvent =
   | { type: 'start'; total: number }
+  | { type: 'booking.start'; followUpId: string; title: string }
+  | { type: 'booking.done'; result: BookingOutcome }
   | { type: 'slack.start' }
   | { type: 'slack.done'; result: SlackOutcome }
   | { type: 'issue.start'; ticketId: string; title: string }

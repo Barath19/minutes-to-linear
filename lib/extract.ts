@@ -30,6 +30,11 @@ What counts as an action item:
 - A problem is raised that the group agrees to track ("ticket it, low priority")
 - A decision creates follow-up work
 
+What is a FOLLOW-UP rather than a ticket:
+- The group agrees to meet again, revisit something, or check in later
+- Work is explicitly deferred to be reconsidered at a point in time ("park it, revisit after X")
+These go in \`followUps\`, not \`tickets\`. A follow-up is a conversation to schedule; a ticket is work to do. If the notes call for no meeting, return an empty array — never invent one.
+
 What does NOT become a ticket:
 - Pure decisions with no work attached — put those in \`decisions\`
 - Things explicitly deferred or rejected ("let's not do that yet")
@@ -41,12 +46,15 @@ Rules:
 - \`assignee\` is the name as written in the notes, or null. Never guess who should do it.
 - Infer \`priority\` from language: "drop everything" is urgent, "low priority" is low, silence is medium.
 - Use \`blockedBy\` when someone says one thing waits on another.
-- If the notes contain no action items at all, return empty arrays. Inventing work is the worst failure mode.`;
+- If the notes contain no action items at all, return empty arrays. Inventing work is the worst failure mode.
+- For \`suggestedDate\`, resolve relative phrases against the meeting date and return YYYY-MM-DD. Only the earliest sensible date matters; real availability decides the actual slot.`;
 
 export function extractTickets(notes: string, onError?: (e: unknown) => void) {
+  // Relative dates in notes ('next week') are meaningless without an anchor.
+  const today = new Date().toISOString().slice(0, 10);
   return streamText({
     model: plannerModel(),
-    system: SYSTEM,
+    system: `${SYSTEM}\n\nToday is ${today}. Resolve all relative dates against it.`,
     prompt: notes,
     output: Output.object({ schema: ExtractionSchema }),
     // Reasoning models spend most of their budget thinking before the first

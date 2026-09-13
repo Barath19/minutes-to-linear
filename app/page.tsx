@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApprovalBar } from '@/components/ApprovalBar';
+import { FollowUpCard } from '@/components/FollowUpCard';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
@@ -11,6 +12,8 @@ import {
   type CreatedIssue,
   type CreateEvent,
   type Extraction,
+  type BookingOutcome,
+  type FollowUp,
   type SlackOutcome,
   type Ticket,
 } from '@/lib/types';
@@ -40,6 +43,9 @@ export default function Page() {
   const [problem, setProblem] = useState<string | null>(null);
   const [slack, setSlack] = useState<SlackOutcome | null>(null);
   const [slackPosting, setSlackPosting] = useState(false);
+  const [bookings, setBookings] = useState<Record<string, BookingOutcome>>({});
+  const [bookingPending, setBookingPending] = useState<string | null>(null);
+  const [skippedFollowUps, setSkippedFollowUps] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch('/api/team')
@@ -58,6 +64,19 @@ export default function Page() {
     [extraction],
   );
 
+  const followUps = useMemo(
+    () =>
+      (extraction?.followUps ?? []).filter(
+        (f): f is FollowUp => Boolean(f?.id && f?.title && f?.suggestedDate),
+      ),
+    [extraction],
+  );
+
+  const includedFollowUps = useMemo(
+    () => followUps.filter((f) => !skippedFollowUps.has(f.id)),
+    [followUps, skippedFollowUps],
+  );
+
   const included = useMemo(
     () => tickets.filter((t) => !excluded.has(t.id)),
     [tickets, excluded],
@@ -72,6 +91,8 @@ export default function Page() {
     setExcluded(new Set());
     setProblem(null);
     setSlack(null);
+    setBookings({});
+    setSkippedFollowUps(new Set());
 
     const res = await fetch('/api/extract', {
       method: 'POST',
@@ -108,6 +129,8 @@ export default function Page() {
     setPhase('creating');
     setProblem(null);
     setSlack(null);
+    setBookings({});
+    setSkippedFollowUps(new Set());
 
     const res = await fetch('/api/create', {
       method: 'POST',
@@ -117,6 +140,7 @@ export default function Page() {
         meetingTitle: extraction?.meetingTitle,
         summary: extraction?.summary,
         decisions: extraction?.decisions,
+        followUps: includedFollowUps,
       }),
     });
 
@@ -137,6 +161,11 @@ export default function Page() {
         setStates((s) => ({ ...s, [e.ticketId]: 'error' }));
         setErrors((x) => ({ ...x, [e.ticketId]: e.error }));
       }
+      if (e.type === 'booking.start') setBookingPending(e.followUpId);
+      if (e.type === 'booking.done') {
+        setBookingPending(null);
+        setBookings((b) => ({ ...b, [e.result.followUpId]: e.result }));
+      }
       if (e.type === 'slack.start') setSlackPosting(true);
       if (e.type === 'slack.done') {
         setSlackPosting(false);
@@ -144,7 +173,7 @@ export default function Page() {
       }
       if (e.type === 'done') setPhase('done');
     });
-  }, [included]);
+  }, [included, includedFollowUps, extraction]);
 
   const reset = () => {
     setPhase('idle');
@@ -155,6 +184,8 @@ export default function Page() {
     setExcluded(new Set());
     setProblem(null);
     setSlack(null);
+    setBookings({});
+    setSkippedFollowUps(new Set());
   };
 
   const editTicket = (id: string, patch: Partial<Ticket>) =>
@@ -321,6 +352,34 @@ export default function Page() {
               ))}
             </AnimatePresence>
 
+            {/* Meetings the notes call for, booked against live availability. */}
+            {followUps.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-2 text-[11px] tracking-wider text-dim uppercase">
+                  Follow-up meetings
+                </p>
+                <div className="space-y-2">
+                  {followUps.map((f) => (
+                    <FollowUpCard
+                      key={f.id}
+                      followUp={f}
+                      booking={bookings[f.id]}
+                      pending={bookingPending === f.id}
+                      included={!skippedFollowUps.has(f.id)}
+                      onToggle={() =>
+                        setSkippedFollowUps((s) => {
+                          const n = new Set(s);
+                          if (n.has(f.id)) n.delete(f.id);
+                          else n.add(f.id);
+                          return n;
+                        })
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Decisions are recorded but deliberately not ticketed. */}
             {extraction?.decisions && extraction.decisions.length > 0 && (
               <div className="mt-4 rounded-lg border border-edge bg-surface/50 p-3.5">
@@ -349,6 +408,7 @@ export default function Page() {
               slack={slack}
               slackPosting={slackPosting}
               slackConfigured={Boolean(team?.slack?.connected)}
+              meetingCount={includedFollowUps.length}
               onApprove={create}
               onReset={reset}
             />
