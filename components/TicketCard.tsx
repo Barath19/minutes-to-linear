@@ -114,7 +114,7 @@ export function TicketCard({
               className="w-24 rounded border border-edge bg-transparent px-1.5 py-0.5 text-[11px] text-dim placeholder:text-dim/50 disabled:opacity-60"
             />
 
-            {ticket.labels.map((l) => (
+            {(ticket.labels ?? []).map((l) => (
               <span key={l} className="rounded border border-edge px-1.5 py-0.5 text-[11px] text-dim">
                 {l}
               </span>

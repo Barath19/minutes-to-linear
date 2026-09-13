@@ -58,6 +58,34 @@ export const ExtractionSchema = z.object({
 });
 export type Extraction = z.infer<typeof ExtractionSchema>;
 
+/**
+ * Fills in a partially-streamed ticket.
+ *
+ * `partialOutputStream` emits the object as it is generated, so a ticket can
+ * exist with a title but no `labels` array yet. Rendering that directly throws.
+ * Everything downstream consumes the result of this instead of the raw partial.
+ */
+export function hydrateTicket(t: Partial<Ticket> | undefined | null): Ticket | null {
+  if (!t?.id || !t.title) return null;
+
+  const priority =
+    t.priority && (PRIORITIES as readonly string[]).includes(t.priority)
+      ? t.priority
+      : 'medium';
+
+  return {
+    id: t.id,
+    title: t.title,
+    description: t.description ?? '',
+    assignee: t.assignee ?? null,
+    priority,
+    labels: Array.isArray(t.labels) ? t.labels.filter(Boolean) : [],
+    estimate: typeof t.estimate === 'number' ? t.estimate : null,
+    sourceQuote: t.sourceQuote ?? '',
+    blockedBy: Array.isArray(t.blockedBy) ? t.blockedBy.filter(Boolean) : [],
+  };
+}
+
 /** Result of pushing one ticket to Linear. */
 export type CreatedIssue = {
   ticketId: string;

@@ -6,7 +6,7 @@ import { ApprovalBar } from '@/components/ApprovalBar';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
-import type { CreatedIssue, CreateEvent, Extraction, Ticket } from '@/lib/types';
+import { hydrateTicket, type CreatedIssue, type CreateEvent, type Extraction, type Ticket } from '@/lib/types';
 
 type Phase = 'idle' | 'extracting' | 'review' | 'creating' | 'done';
 
@@ -30,11 +30,13 @@ export default function Page() {
       .catch(() => setTeam({ connected: false, reason: 'could not reach /api/team' }));
   }, []);
 
+  // Tickets stream in field by field, so every partial is hydrated with safe
+  // defaults before it reaches a component.
   const tickets = useMemo(
     () =>
-      (extraction?.tickets ?? []).filter(
-        (t): t is Ticket => Boolean(t?.id && t?.title),
-      ),
+      (extraction?.tickets ?? [])
+        .map(hydrateTicket)
+        .filter((t): t is Ticket => t !== null),
     [extraction],
   );
 
