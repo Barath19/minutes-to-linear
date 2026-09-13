@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Hide the Next.js dev badge — it sits over the UI and shows up in recordings.
+  devIndicators: false,
 };
 
 export default nextConfig;

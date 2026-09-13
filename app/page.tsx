@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApprovalBar } from '@/components/ApprovalBar';
+import { ExtractButton } from '@/components/ExtractButton';
 import { FollowUpCard } from '@/components/FollowUpCard';
 import { NotionImport } from '@/components/NotionImport';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
@@ -44,6 +45,8 @@ export default function Page() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [team, setTeam] = useState<TeamInfo | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // Set only when notes arrive in bulk, never while typing.
+  const [armed, setArmed] = useState(false);
   const [slack, setSlack] = useState<SlackOutcome | null>(null);
   const [slackPosting, setSlackPosting] = useState(false);
   const [bookings, setBookings] = useState<Record<string, BookingOutcome>>({});
@@ -86,6 +89,7 @@ export default function Page() {
   );
 
   const extract = useCallback(async () => {
+    setArmed(false);
     setPhase('extracting');
     setExtraction(null);
     setStates({});
@@ -189,6 +193,7 @@ export default function Page() {
     setSlack(null);
     setBookings({});
     setSkippedFollowUps(new Set());
+    setArmed(false);
   };
 
   const editTicket = (id: string, patch: Partial<Ticket>) =>
@@ -256,7 +261,10 @@ export default function Page() {
             <div className="ml-auto flex items-center gap-2">
               {!notes.trim() && (
                 <button
-                  onClick={() => setNotes(SAMPLE_NOTES)}
+                  onClick={() => {
+                    setNotes(SAMPLE_NOTES);
+                    setArmed(true);
+                  }}
                   disabled={busy}
                   className="rounded-md border border-edge px-2 py-1 text-[11px] text-dim transition-colors hover:text-text disabled:opacity-40"
                   title="Load an example meeting, so the app is usable without Notion"
@@ -270,6 +278,7 @@ export default function Page() {
                   onImport={(text) => {
                     setNotes(text);
                     reset();
+                    setArmed(true);
                   }}
                 />
               )}
@@ -278,7 +287,10 @@ export default function Page() {
 
           <textarea
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => {
+              setNotes(e.target.value);
+              setArmed(false);
+            }}
             disabled={busy}
             spellCheck={false}
             placeholder="Paste your meeting notes, or import them from Notion…"
@@ -286,13 +298,13 @@ export default function Page() {
           />
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={extract}
+            <ExtractButton
+              armed={armed && phase === 'idle'}
               disabled={busy || !notes.trim()}
-              className="flex-1 rounded-lg bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-35"
-            >
-              {phase === 'extracting' ? 'Reading notes…' : 'Extract tickets'}
-            </button>
+              busy={phase === 'extracting'}
+              onFire={extract}
+              onCancel={() => setArmed(false)}
+            />
             {phase !== 'idle' && (
               <button
                 onClick={reset}
