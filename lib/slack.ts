@@ -91,7 +91,7 @@ export function buildDigest(
     elements: [
       {
         type: 'mrkdwn',
-        text: `${created.length} issue${created.length === 1 ? '' : 's'} created in Linear from meeting notes`,
+        text: `Neuva · ${created.length} issue${created.length === 1 ? '' : 's'} created in Linear from meeting notes`,
       },
     ],
   });

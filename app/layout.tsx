@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono-geist' });
 
 export const metadata: Metadata = {
-  title: 'Minutes → Linear',
+  title: 'Neuva — meeting notes that file themselves',
   description: 'Turn raw meeting notes into reviewed, assigned Linear tickets.',
 };
 

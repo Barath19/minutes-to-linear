@@ -179,10 +179,10 @@ export default function Page() {
         <section className="flex min-h-0 min-w-0 flex-col gap-3">
           <header className="flex items-center gap-2.5">
             <div className="grid size-7 place-items-center rounded-md bg-brand text-[13px] font-semibold">
-              M
+              N
             </div>
             <h1 className="text-[15px] font-semibold">
-              Minutes <span className="text-dim">→ Linear</span>
+              Neuva <span className="text-dim">· notes that file themselves</span>
             </h1>
             <span
               className={`ml-auto flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
