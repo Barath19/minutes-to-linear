@@ -10,7 +10,13 @@ import { hydrateTicket, type CreatedIssue, type CreateEvent, type Extraction, ty
 
 type Phase = 'idle' | 'extracting' | 'review' | 'creating' | 'done';
 
-type TeamInfo = { connected: boolean; teamName?: string; reason?: string };
+type TeamInfo = {
+  connected: boolean;
+  teamName?: string;
+  projectName?: string;
+  projectConfigured?: boolean;
+  reason?: string;
+};
 
 export default function Page() {
   const [notes, setNotes] = useState(SAMPLE_NOTES);
@@ -164,7 +170,9 @@ export default function Page() {
               <span
                 className={`size-1.5 rounded-full ${team?.connected ? 'bg-emerald-400' : 'bg-dim'}`}
               />
-              {team?.connected ? team.teamName : 'not connected'}
+              {team?.connected
+                ? (team.projectName ?? team.teamName)
+                : 'not connected'}
             </span>
           </header>
 

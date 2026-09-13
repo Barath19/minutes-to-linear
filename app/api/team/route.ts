@@ -10,6 +10,8 @@ export async function GET() {
     return Response.json({
       connected: true,
       teamName: ws.teamName,
+      projectName: ws.projectName,
+      projectConfigured: Boolean(process.env.LINEAR_PROJECT_ID),
       memberCount: new Set(ws.members.values()).size,
       labelCount: ws.labels.size,
     });

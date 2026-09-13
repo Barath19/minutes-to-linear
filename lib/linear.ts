@@ -10,6 +10,9 @@ export function linearClient(): LinearClient {
 export type Workspace = {
   teamId: string;
   teamName: string;
+  /** Project every issue is filed under, when LINEAR_PROJECT_ID is configured. */
+  projectId?: string;
+  projectName?: string;
   /** Lowercased display/full name -> user id, for resolving "Priya" to a real person. */
   members: Map<string, string>;
   /** Lowercased label name -> label id. */
@@ -29,7 +32,15 @@ export async function loadWorkspace(client: LinearClient): Promise<Workspace> {
   const team = teamId ? teams.nodes.find((t) => t.id === teamId) : teams.nodes[0];
   if (!team) throw new Error('No Linear team found for this API key');
 
-  const [users, labels] = await Promise.all([client.users(), team.labels()]);
+  const [users, labels, project] = await Promise.all([
+    client.users(),
+    team.labels(),
+    // A missing or mistyped project id should not take the whole app down;
+    // issues still file to the team, and the UI reports that it was ignored.
+    process.env.LINEAR_PROJECT_ID
+      ? client.project(process.env.LINEAR_PROJECT_ID).catch(() => null)
+      : Promise.resolve(null),
+  ]);
 
   const members = new Map<string, string>();
   for (const u of users.nodes) {
@@ -44,7 +55,14 @@ export async function loadWorkspace(client: LinearClient): Promise<Workspace> {
   const labelMap = new Map<string, string>();
   for (const l of labels.nodes) labelMap.set(l.name.toLowerCase(), l.id);
 
-  return { teamId: team.id, teamName: team.name, members, labels: labelMap };
+  return {
+    teamId: team.id,
+    teamName: team.name,
+    projectId: project?.id,
+    projectName: project?.name,
+    members,
+    labels: labelMap,
+  };
 }
 
 export function resolveAssignee(ws: Workspace, name: string | null): string | undefined {
@@ -76,6 +94,7 @@ export async function createIssue(
     title: ticket.title,
     description: body(ticket),
     priority: PRIORITY_VALUE[ticket.priority] ?? 0,
+    projectId: ws.projectId,
     assigneeId: resolveAssignee(ws, ticket.assignee),
     labelIds: resolveLabels(ws, ticket.labels),
     estimate: ticket.estimate ?? undefined,
