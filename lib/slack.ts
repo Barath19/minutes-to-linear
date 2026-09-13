@@ -9,8 +9,23 @@ export type SlackResult = {
   error?: string;
 };
 
+/**
+ * Resolves the target channel.
+ *
+ * A bare `#` starts a comment in a .env file, so `SLACK_CHANNEL=#team` silently
+ * parses as empty. Accepting the name with or without the hash (and quoted)
+ * removes a failure mode that looks like a broken token.
+ */
+export function slackChannel(): string | null {
+  const raw = process.env.SLACK_CHANNEL?.trim().replace(/^["']|["']$/g, '');
+  if (!raw) return null;
+  // Channel ids (C…/G…) are passed through untouched; names get a leading #.
+  if (/^[CGD][A-Z0-9]{6,}$/.test(raw)) return raw;
+  return raw.startsWith('#') ? raw : `#${raw}`;
+}
+
 export function slackConfigured(): boolean {
-  return Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_CHANNEL);
+  return Boolean(process.env.SLACK_BOT_TOKEN && slackChannel());
 }
 
 const PRIORITY_MARK: Record<string, string> = {
@@ -118,7 +133,7 @@ export async function postDigest(
   }
 
   const web = new WebClient(process.env.SLACK_BOT_TOKEN);
-  const channel = process.env.SLACK_CHANNEL!;
+  const channel = slackChannel()!;
 
   try {
     const { blocks, text } = buildDigest(extraction, tickets, created);
@@ -154,7 +169,12 @@ export async function postDigest(
 /** Connection check for the status endpoint. */
 export async function slackStatus(): Promise<{ connected: boolean; team?: string; reason?: string }> {
   if (!slackConfigured()) {
-    return { connected: false, reason: 'SLACK_BOT_TOKEN or SLACK_CHANNEL is not set' };
+    return {
+      connected: false,
+      reason: process.env.SLACK_BOT_TOKEN
+        ? 'SLACK_CHANNEL is not set (note: an unquoted # starts a comment in .env)'
+        : 'SLACK_BOT_TOKEN is not set',
+    };
   }
   try {
     const res = await new WebClient(process.env.SLACK_BOT_TOKEN).auth.test();
