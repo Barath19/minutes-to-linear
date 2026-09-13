@@ -47,6 +47,8 @@ export default function Page() {
   const [problem, setProblem] = useState<string | null>(null);
   // Set only when notes arrive in bulk, never while typing.
   const [armed, setArmed] = useState(false);
+  // Armed when a plan is ready to review, so the whole run is hands-free.
+  const [approvalArmed, setApprovalArmed] = useState(false);
   const [slack, setSlack] = useState<SlackOutcome | null>(null);
   const [slackPosting, setSlackPosting] = useState(false);
   const [bookings, setBookings] = useState<Record<string, BookingOutcome>>({});
@@ -90,6 +92,7 @@ export default function Page() {
 
   const extract = useCallback(async () => {
     setArmed(false);
+    setApprovalArmed(false);
     setPhase('extracting');
     setExtraction(null);
     setStates({});
@@ -129,10 +132,12 @@ export default function Page() {
       return;
     }
     setPhase('review');
+    setApprovalArmed(true);
   }, [notes]);
 
   const create = useCallback(async () => {
     if (included.length === 0) return;
+    setApprovalArmed(false);
     setPhase('creating');
     setProblem(null);
     setSlack(null);
@@ -155,6 +160,7 @@ export default function Page() {
       const b = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
       setProblem(b.error ?? 'creation failed');
       setPhase('review');
+    setApprovalArmed(true);
       return;
     }
 
@@ -194,14 +200,18 @@ export default function Page() {
     setBookings({});
     setSkippedFollowUps(new Set());
     setArmed(false);
+    setApprovalArmed(false);
   };
 
-  const editTicket = (id: string, patch: Partial<Ticket>) =>
+  const editTicket = (id: string, patch: Partial<Ticket>) => {
+    setApprovalArmed(false);
+    return
     setExtraction((ex) =>
       ex
         ? { ...ex, tickets: (ex.tickets ?? []).map((t) => (t?.id === id ? { ...t, ...patch } : t)) }
         : ex,
     );
+  };
 
   const createdCount = Object.keys(results).length;
   const busy = phase === 'extracting' || phase === 'creating';
@@ -376,14 +386,15 @@ export default function Page() {
                   url={results[t.id]?.url}
                   error={errors[t.id]}
                   included={!excluded.has(t.id)}
-                  onToggle={() =>
+                  onToggle={() => {
+                    setApprovalArmed(false);
                     setExcluded((s) => {
                       const n = new Set(s);
                       if (n.has(t.id)) n.delete(t.id);
                       else n.add(t.id);
                       return n;
-                    })
-                  }
+                    });
+                  }}
                   onEdit={(patch) => editTicket(t.id, patch)}
                   blockedTitles={(t.blockedBy ?? [])
                     .map((id) => tickets.find((x) => x.id === id)?.title)
@@ -406,14 +417,15 @@ export default function Page() {
                       booking={bookings[f.id]}
                       pending={bookingPending === f.id}
                       included={!skippedFollowUps.has(f.id)}
-                      onToggle={() =>
+                      onToggle={() => {
+                        setApprovalArmed(false);
                         setSkippedFollowUps((s) => {
                           const n = new Set(s);
                           if (n.has(f.id)) n.delete(f.id);
                           else n.add(f.id);
                           return n;
-                        })
-                      }
+                        });
+                      }}
                     />
                   ))}
                 </div>
@@ -449,6 +461,8 @@ export default function Page() {
               slackPosting={slackPosting}
               slackConfigured={Boolean(team?.slack?.connected)}
               meetingCount={includedFollowUps.length}
+              armed={approvalArmed}
+              onCancelArm={() => setApprovalArmed(false)}
               onApprove={create}
               onReset={reset}
             />

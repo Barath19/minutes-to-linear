@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useArmed } from './useArmed';
 
 /** How long the fill takes before it fires itself. */
 const ARM_MS = 5000;
@@ -32,46 +32,12 @@ export function ExtractButton({
   onFire: () => void;
   onCancel: () => void;
 }) {
-  const [remaining, setRemaining] = useState(ARM_MS);
-  const fired = useRef(false);
-
-  useEffect(() => {
-    if (!armed) {
-      setRemaining(ARM_MS);
-      fired.current = false;
-      return;
-    }
-
-    fired.current = false;
-    const startedAt = Date.now();
-
-    const tick = setInterval(() => {
-      setRemaining(Math.max(0, ARM_MS - (Date.now() - startedAt)));
-    }, 100);
-
-    const timer = setTimeout(() => {
-      if (!fired.current) {
-        fired.current = true;
-        onFire();
-      }
-    }, ARM_MS);
-
-    return () => {
-      clearInterval(tick);
-      clearTimeout(timer);
-    };
-  }, [armed, onFire]);
-
-  const seconds = Math.ceil(remaining / 1000);
+  const { seconds, fireNow } = useArmed(armed, ARM_MS, onFire);
 
   return (
     <div className="flex flex-1 items-center gap-2">
       <motion.button
-        onClick={() => {
-          // A click during the countdown means "now", not "again".
-          fired.current = true;
-          onFire();
-        }}
+        onClick={fireNow}
         disabled={disabled}
         whileTap={disabled ? undefined : { scale: 0.99 }}
         className="relative flex-1 overflow-hidden rounded-lg bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-35"

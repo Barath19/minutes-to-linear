@@ -2,6 +2,13 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import type { SlackOutcome, Ticket } from '@/lib/types';
+import { useArmed } from './useArmed';
+
+/**
+ * The review window before anything is written. Long enough to read the summary
+ * and stop it — the countdown is the approval step, not a formality.
+ */
+const ARM_MS = 5000;
 
 type Phase = 'review' | 'creating' | 'done';
 
@@ -20,6 +27,8 @@ export function ApprovalBar({
   slackPosting,
   slackConfigured,
   meetingCount = 0,
+  armed = false,
+  onCancelArm,
   onApprove,
   onReset,
 }: {
@@ -32,6 +41,8 @@ export function ApprovalBar({
   slackPosting?: boolean;
   slackConfigured?: boolean;
   meetingCount?: number;
+  armed?: boolean;
+  onCancelArm?: () => void;
   onApprove: () => void;
   onReset: () => void;
 }) {
@@ -39,6 +50,9 @@ export function ApprovalBar({
   const assigned = tickets.filter((t) => t.assignee).length;
   const urgent = tickets.filter((t) => t.priority === 'urgent' || t.priority === 'high').length;
   const blocked = tickets.filter((t) => (t.blockedBy ?? []).length > 0).length;
+
+  const isArmed = armed && phase === 'review' && total + meetingCount > 0;
+  const { seconds, fireNow } = useArmed(isArmed, ARM_MS, onApprove);
 
   const facts = [
     `${assigned} assigned`,
@@ -84,24 +98,47 @@ export function ApprovalBar({
               </p>
             </div>
 
-            <motion.button
-              onClick={onApprove}
-              disabled={total === 0 && meetingCount === 0}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.985 }}
-              className="flex items-center gap-2 rounded-lg bg-emerald-500 px-5 py-2.5 text-[13px] font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-25"
-            >
-              <svg viewBox="0 0 14 14" className="size-3.5" fill="none">
-                <path
-                  d="M2.5 7.4l3 3 6-6.8"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Approve &amp; run
-            </motion.button>
+            <div className="flex items-center gap-2">
+              {isArmed && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={onCancelArm}
+                  className="rounded-lg border border-edge px-3 py-2.5 text-[13px] text-dim transition-colors hover:border-red-500/50 hover:text-red-300"
+                >
+                  Cancel
+                </motion.button>
+              )}
+
+              <motion.button
+                onClick={fireNow}
+                disabled={total === 0 && meetingCount === 0}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.985 }}
+                className="relative flex items-center gap-2 overflow-hidden rounded-lg bg-emerald-500 px-5 py-2.5 text-[13px] font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-25"
+              >
+                {isArmed && (
+                  <motion.span
+                    className="absolute inset-y-0 left-0 bg-black/20"
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: ARM_MS / 1000, ease: 'linear' }}
+                  />
+                )}
+                <svg viewBox="0 0 14 14" className="relative size-3.5" fill="none">
+                  <path
+                    d="M2.5 7.4l3 3 6-6.8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="relative">
+                  {isArmed ? `Running in ${seconds}…` : 'Approve & run'}
+                </span>
+              </motion.button>
+            </div>
           </motion.div>
         )}
 
