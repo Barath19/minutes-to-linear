@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ApprovalBar } from '@/components/ApprovalBar';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
@@ -219,19 +220,6 @@ export default function Page() {
               </span>
             )}
 
-            {(phase === 'review' || phase === 'creating' || phase === 'done') && (
-              <button
-                onClick={create}
-                disabled={busy || included.length === 0 || phase === 'done'}
-                className="ml-auto rounded-lg bg-emerald-500 px-4 py-2 text-[13px] font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-30"
-              >
-                {phase === 'creating'
-                  ? 'Creating…'
-                  : phase === 'done'
-                    ? 'Created'
-                    : `Create ${included.length} in Linear`}
-              </button>
-            )}
           </div>
 
           {extraction?.summary && (
@@ -293,6 +281,19 @@ export default function Page() {
               </div>
             )}
           </div>
+
+          {/* The approval gate. Nothing is written to Linear above this line. */}
+          {(phase === 'review' || phase === 'creating' || phase === 'done') && (
+            <ApprovalBar
+              phase={phase}
+              tickets={included}
+              createdCount={createdCount}
+              failedCount={Object.keys(errors).length}
+              teamName={team?.teamName}
+              onApprove={create}
+              onReset={reset}
+            />
+          )}
         </section>
       </div>
     </main>
