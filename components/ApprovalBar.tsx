@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import type { Ticket } from '@/lib/types';
+import type { SlackOutcome, Ticket } from '@/lib/types';
 
 type Phase = 'review' | 'creating' | 'done';
 
@@ -16,6 +16,9 @@ export function ApprovalBar({
   createdCount,
   failedCount,
   teamName,
+  slack,
+  slackPosting,
+  slackConfigured,
   onApprove,
   onReset,
 }: {
@@ -24,6 +27,9 @@ export function ApprovalBar({
   createdCount: number;
   failedCount: number;
   teamName?: string;
+  slack?: SlackOutcome | null;
+  slackPosting?: boolean;
+  slackConfigured?: boolean;
   onApprove: () => void;
   onReset: () => void;
 }) {
@@ -62,7 +68,9 @@ export function ApprovalBar({
               <p className="mt-0.5 text-[11.5px] text-dim">
                 {total === 0
                   ? 'Tick at least one ticket to continue.'
-                  : `${facts.join(' · ')} — review above, then approve.`}
+                  : `${facts.join(' · ')}${
+                      slackConfigured ? ', then a Slack digest' : ''
+                    } — review above, then approve.`}
               </p>
             </div>
 
@@ -95,7 +103,9 @@ export function ApprovalBar({
             exit={{ opacity: 0 }}
           >
             <div className="flex items-center justify-between text-[13px]">
-              <span className="font-medium">Creating issues in Linear…</span>
+              <span className="font-medium">
+                {slackPosting ? 'Posting digest to Slack…' : 'Creating issues in Linear…'}
+              </span>
               <span className="text-dim tabular-nums">
                 {createdCount + failedCount} / {total}
               </span>
@@ -127,7 +137,29 @@ export function ApprovalBar({
                 )}
               </p>
               <p className="mt-0.5 text-[11.5px] text-dim">
-                Open any identifier above to jump straight to it in Linear.
+                {slack?.ok ? (
+                  slack.permalink ? (
+                    <>
+                      Digest posted to Slack —{' '}
+                      <a
+                        href={slack.permalink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-emerald-300 underline underline-offset-2"
+                      >
+                        view message
+                      </a>
+                    </>
+                  ) : (
+                    'Digest posted to Slack.'
+                  )
+                ) : slack?.error ? (
+                  <span className="text-amber-300">
+                    Issues created, but Slack digest failed: {slack.error}
+                  </span>
+                ) : (
+                  'Open any identifier above to jump straight to it in Linear.'
+                )}
               </p>
             </div>
             <button

@@ -94,8 +94,18 @@ export type CreatedIssue = {
   title: string;
 };
 
+export type SlackOutcome = {
+  ok: boolean;
+  channel?: string;
+  ts?: string;
+  permalink?: string;
+  error?: string;
+};
+
 export type CreateEvent =
   | { type: 'start'; total: number }
+  | { type: 'slack.start' }
+  | { type: 'slack.done'; result: SlackOutcome }
   | { type: 'issue.start'; ticketId: string; title: string }
   | { type: 'issue.done'; issue: CreatedIssue }
   | { type: 'issue.error'; ticketId: string; error: string }

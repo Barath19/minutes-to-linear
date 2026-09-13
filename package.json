@@ -13,6 +13,7 @@
     "@base-ui/react": "^1.8.0",
     "@linear/sdk": "^95.0.0",
     "@number-flow/react": "^0.6.2",
+    "@slack/web-api": "^8.1.1",
     "ai": "^7.0.99",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.0",

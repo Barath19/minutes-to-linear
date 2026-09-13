@@ -6,12 +6,22 @@ import { ApprovalBar } from '@/components/ApprovalBar';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
-import { hydrateTicket, type CreatedIssue, type CreateEvent, type Extraction, type Ticket } from '@/lib/types';
+import {
+  hydrateTicket,
+  type CreatedIssue,
+  type CreateEvent,
+  type Extraction,
+  type SlackOutcome,
+  type Ticket,
+} from '@/lib/types';
 
 type Phase = 'idle' | 'extracting' | 'review' | 'creating' | 'done';
 
+type SlackInfo = { connected: boolean; team?: string; reason?: string };
+
 type TeamInfo = {
   connected: boolean;
+  slack?: SlackInfo;
   teamName?: string;
   projectName?: string;
   projectConfigured?: boolean;
@@ -28,6 +38,8 @@ export default function Page() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [team, setTeam] = useState<TeamInfo | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [slack, setSlack] = useState<SlackOutcome | null>(null);
+  const [slackPosting, setSlackPosting] = useState(false);
 
   useEffect(() => {
     fetch('/api/team')
@@ -59,6 +71,7 @@ export default function Page() {
     setErrors({});
     setExcluded(new Set());
     setProblem(null);
+    setSlack(null);
 
     const res = await fetch('/api/extract', {
       method: 'POST',
@@ -94,11 +107,17 @@ export default function Page() {
     if (included.length === 0) return;
     setPhase('creating');
     setProblem(null);
+    setSlack(null);
 
     const res = await fetch('/api/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tickets: included }),
+      body: JSON.stringify({
+        tickets: included,
+        meetingTitle: extraction?.meetingTitle,
+        summary: extraction?.summary,
+        decisions: extraction?.decisions,
+      }),
     });
 
     if (!res.ok) {
@@ -118,6 +137,11 @@ export default function Page() {
         setStates((s) => ({ ...s, [e.ticketId]: 'error' }));
         setErrors((x) => ({ ...x, [e.ticketId]: e.error }));
       }
+      if (e.type === 'slack.start') setSlackPosting(true);
+      if (e.type === 'slack.done') {
+        setSlackPosting(false);
+        setSlack(e.result);
+      }
       if (e.type === 'done') setPhase('done');
     });
   }, [included]);
@@ -130,6 +154,7 @@ export default function Page() {
     setErrors({});
     setExcluded(new Set());
     setProblem(null);
+    setSlack(null);
   };
 
   const editTicket = (id: string, patch: Partial<Ticket>) =>
@@ -173,6 +198,22 @@ export default function Page() {
               {team?.connected
                 ? (team.projectName ?? team.teamName)
                 : 'not connected'}
+            </span>
+
+            <span
+              className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
+                team?.slack?.connected
+                  ? 'border-emerald-500/30 text-emerald-300'
+                  : 'border-edge text-dim'
+              }`}
+              title={team?.slack?.reason ?? 'Slack digest after issues are created'}
+            >
+              <span
+                className={`size-1.5 rounded-full ${
+                  team?.slack?.connected ? 'bg-emerald-400' : 'bg-dim'
+                }`}
+              />
+              {team?.slack?.connected ? (team.slack.team ?? 'Slack') : 'no Slack'}
             </span>
           </header>
 
@@ -304,7 +345,10 @@ export default function Page() {
               tickets={included}
               createdCount={createdCount}
               failedCount={Object.keys(errors).length}
-              teamName={team?.teamName}
+              teamName={team?.projectName ?? team?.teamName}
+              slack={slack}
+              slackPosting={slackPosting}
+              slackConfigured={Boolean(team?.slack?.connected)}
               onApprove={create}
               onReset={reset}
             />
