@@ -3,9 +3,11 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApprovalBar } from '@/components/ApprovalBar';
+import { ConnectionPill } from '@/components/ConnectionPill';
 import { ExtractButton } from '@/components/ExtractButton';
 import { FollowUpCard } from '@/components/FollowUpCard';
 import { NotionImport } from '@/components/NotionImport';
+import { CalendarMark, LinearMark, NotionMark, SlackMark } from '@/components/icons';
 import { TicketCard, type TicketState } from '@/components/TicketCard';
 import { readNdjson } from '@/lib/ndjson';
 import { SAMPLE_NOTES } from '@/lib/sample';
@@ -226,44 +228,45 @@ export default function Page() {
       <div className="mx-auto grid min-h-dvh max-w-[1500px] grid-cols-1 gap-6 p-5 lg:h-dvh lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         {/* Notes */}
         <section className="flex min-h-0 min-w-0 flex-col gap-3">
-          <header className="flex items-center gap-2.5">
+          <header className="flex flex-wrap items-center gap-2.5">
             <div className="grid size-7 place-items-center rounded-md bg-brand text-[13px] font-semibold">
               N
             </div>
             <h1 className="text-[15px] font-semibold">
               Neuva <span className="text-dim">· notes that file themselves</span>
             </h1>
-            <span
-              className={`ml-auto flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
-                team?.connected
-                  ? 'border-emerald-500/30 text-emerald-300'
-                  : 'border-edge text-dim'
-              }`}
-              title={team?.reason}
-            >
-              <span
-                className={`size-1.5 rounded-full ${team?.connected ? 'bg-emerald-400' : 'bg-dim'}`}
-              />
-              {team?.connected
-                ? (team.projectName ?? team.teamName)
-                : 'not connected'}
-            </span>
 
-            <span
-              className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
-                team?.slack?.connected
-                  ? 'border-emerald-500/30 text-emerald-300'
-                  : 'border-edge text-dim'
-              }`}
-              title={team?.slack?.reason ?? 'Slack digest after issues are created'}
-            >
-              <span
-                className={`size-1.5 rounded-full ${
-                  team?.slack?.connected ? 'bg-emerald-400' : 'bg-dim'
-                }`}
+            {/* Where an approval will actually write. */}
+            <div className="ml-auto flex flex-wrap items-center gap-1.5">
+              <ConnectionPill
+                icon={<NotionMark className="size-3" />}
+                label={team?.notion?.connected ? 'Notion' : 'Notion'}
+                connected={team?.notion?.connected}
+                reason={team?.notion?.reason}
+                pending={!team}
               />
-              {team?.slack?.connected ? (team.slack.team ?? 'Slack') : 'no Slack'}
-            </span>
+              <ConnectionPill
+                icon={<LinearMark className="size-3" />}
+                label={team?.connected ? (team.projectName ?? team.teamName ?? 'Linear') : 'Linear'}
+                connected={team?.connected}
+                reason={team?.reason}
+                pending={!team}
+              />
+              <ConnectionPill
+                icon={<CalendarMark className="size-3" />}
+                label="Cal.com"
+                connected={team?.cal?.connected}
+                reason={team?.cal?.reason}
+                pending={!team}
+              />
+              <ConnectionPill
+                icon={<SlackMark className="size-3" />}
+                label={team?.slack?.connected ? (team.slack.team ?? 'Slack') : 'Slack'}
+                connected={team?.slack?.connected}
+                reason={team?.slack?.reason}
+                pending={!team}
+              />
+            </div>
           </header>
 
           <div className="flex items-center gap-2">
