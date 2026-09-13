@@ -79,30 +79,108 @@ the past clamp to now.
 
 ---
 
+## Evaluation
+
+```bash
+pnpm eval                  # 5 fixtures, structural checks + local LLM judge
+pnpm eval --trials 3       # measure run-to-run variance
+pnpm eval --no-judge       # structural checks only
+```
+
+Two layers, because they catch different things.
+
+### Layer 1 — structural checks (`evals/checks.ts`)
+
+Nine properties per fixture, all decidable mechanically. The important ones:
+
+| Check | What it catches |
+|---|---|
+| **source quotes grounded** | Every `sourceQuote` must appear *verbatim in the notes*. A fabricated quote is a hallucination with no judgment call involved. |
+| **no invented work** | Parked, deferred and already-finished items must never become tickets |
+| **coverage** | Every real commitment became a ticket |
+| **no invented assignees** | Names must exist in the notes |
+| **priority inferred** | "drop everything" → urgent, "low priority" → low |
+| **blocking captured** | Stated dependencies become `blockedBy`, with no dangling refs |
+| ticket / follow-up counts in range | Neither padded nor truncated |
+| tickets well-formed | Every ticket is usable by the Linear stage |
+
+Fixtures deliberately include three meetings that should produce **nothing**: pure
+status updates, a coffee chat, and a roadmap review where every item was deferred.
+Over-extraction is the failure mode that makes this category of tool useless.
+
+**Latest run: 38/38 checks passing** across 5 fixtures. Full output in
+[`evals/results.json`](evals/results.json).
+
+> A perfect score on a first run usually means the checks are too lenient rather than
+> the agent being perfect. `--trials 3` is the honest way to read it: it surfaces
+> checks that pass intermittently, which matters more than any single run.
+
+### Layer 2 — LLM as judge (`evals/judge.ts`)
+
+Structural checks cannot tell you whether a ticket is *good* — only whether it is
+well-formed and grounded. A local **gemma3:4b** via Ollama scores each ticket 1-5 on
+faithfulness, specificity and usefulness.
+
+The judge is deliberately a **different model family from the one being graded**. A
+model scoring its own output is not independent evidence and shares its blind spots.
+
+```
+LLM judge (gemma3:4b, 9 tickets)
+  faithfulness  █████  4.89/5
+  specificity   ████░  3.78/5
+  usefulness    ████░  4.11/5
+```
+
+The interesting result is that **specificity scores lowest** — titles are faithful but
+less concrete than they could be. That is a real weakness no structural check would
+have found.
+
+It is a signal, not an oracle: a 4B model is noisy, so scores are reported as a
+distribution and low-scoring tickets are surfaced for a human rather than failing the
+run. The eval passes with the judge offline.
+
+---
+
 ## Reliability
 
 Failure modes that are handled rather than hoped away:
 
-- **Silent truncation.** A reasoning model spends most of its output budget thinking before the
-  first ticket appears; the default ceiling cuts the array mid-flight and returns a
-  *valid-looking* short list. The route inspects `finishReason` and fails loudly instead of
-  silently dropping tickets.
-- **Streaming errors.** `streamText` surfaces provider failures as stream events rather than
-  throwing, so an `onError` hook forwards them. Otherwise a rejected API key is
+- **Silent truncation.** A reasoning model spends most of its output budget thinking
+  before the first ticket appears; the default ceiling cuts the array mid-flight and
+  returns a *valid-looking* short list. The route inspects `finishReason` and fails
+  loudly instead of silently dropping tickets.
+- **Streaming errors.** `streamText` surfaces provider failures as stream events rather
+  than throwing, so an `onError` hook forwards them. Otherwise a rejected API key is
   indistinguishable from "this meeting had no action items."
-- **Half-built objects.** Tickets stream in field by field, so one can have a title while
-  `labels` is still undefined. Every partial is hydrated with defaults before rendering —
+- **Half-built objects.** Tickets stream in field by field, so one can have a title
+  while `labels` is still undefined. Every partial is hydrated before rendering —
   replaying a real extraction showed 140 of 275 frames would crash naive rendering.
 - **Invisible Notion content.** Notion's AI meeting recorder wraps transcripts in an
-  undocumented `transcription` block holding no text of its own. Traversal is independent of
-  whether a block contributes text, so containers, columns and toggles are never skipped.
-- **Invented assignees.** Names are matched against real workspace members, including first
-  names. No match means unassigned — never a guess.
-- **Ordering of side effects.** Linear first, then Cal.com, then Slack. Each later stage is
-  non-fatal: a failed booking or digest is reported alongside the run rather than failing it,
-  because the issues already exist and pretending otherwise would be a lie.
+  undocumented `transcription` block holding no text of its own. Traversal is
+  independent of whether a block contributes text.
+- **Invented assignees.** Names are matched against real workspace members. No match
+  means unassigned — never a guess.
 
----
+### Durable execution
+
+The filing phase runs as a **Temporal** workflow, so a crash mid-run resumes rather
+than restarts.
+
+```bash
+pnpm temporal    # dev server + UI on :8233
+pnpm worker      # activity worker
+```
+
+Each external call is an activity with its own retry policy, because the services fail
+differently: Linear rate-limits bursts and gets patient backoff, Cal.com can lose a
+race for a slot and retries quickly, Slack fails fast as the last and least essential
+step. The workflow is deterministic by construction — no I/O, clock reads or
+randomness outside activities — which is what makes replay sound, and the workflow id
+doubles as an idempotency key.
+
+Without it, a crash left issues created, no booking, no digest, and no record of where
+it stopped. The execution history is now inspectable in the Temporal UI rather than
+inferred from logs.
 
 ## Setup
 

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "temporal": "temporal server start-dev --db-filename .temporal/neuva.db --ui-port 8233",
-    "worker": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs worker/worker.ts"
+    "worker": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs worker/worker.ts",
+    "eval": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs evals/run.ts",
+    "eval:full": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs evals/run.ts --trials 3"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.53",
