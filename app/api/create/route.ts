@@ -10,6 +10,7 @@ import {
 import { createIssue, linearClient, linkBlockers, loadWorkspace } from '@/lib/linear';
 import { ndjsonStream } from '@/lib/ndjson';
 import { postDigest, slackConfigured } from '@/lib/slack';
+import { runAsWorkflow, temporalAvailable } from '@/lib/temporal';
 import {
   FollowUpSchema,
   TicketSchema,
@@ -40,6 +41,21 @@ export async function POST(req: Request) {
   }
 
   const { tickets, meetingTitle, summary, decisions, followUps, notifySlack } = parsed.data;
+
+  // Prefer durable execution. Falling back keeps the app usable for anyone who
+  // clones the repo without running a Temporal server.
+  if (await temporalAvailable()) {
+    const input = {
+      meetingTitle: meetingTitle ?? '',
+      summary: summary ?? '',
+      decisions: decisions ?? [],
+      tickets,
+      followUps: followUps ?? [],
+    };
+    // A stable id per filing makes the workflow its own idempotency key.
+    const workflowId = `meeting-${Date.now()}`;
+    return ndjsonStream(runAsWorkflow(input, workflowId));
+  }
 
   async function* events(): AsyncGenerator<CreateEvent> {
     const client = linearClient();

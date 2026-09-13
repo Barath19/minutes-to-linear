@@ -29,6 +29,7 @@ export function ApprovalBar({
   meetingCount = 0,
   armed = false,
   onCancelArm,
+  workflowId,
   onApprove,
   onReset,
 }: {
@@ -43,6 +44,7 @@ export function ApprovalBar({
   meetingCount?: number;
   armed?: boolean;
   onCancelArm?: () => void;
+  workflowId?: string | null;
   onApprove: () => void;
   onReset: () => void;
 }) {
@@ -209,6 +211,17 @@ export function ApprovalBar({
                 )}
               </p>
             </div>
+            {workflowId && (
+              <a
+                href={`http://localhost:8233/namespaces/default/workflows/${workflowId}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg border border-edge px-3 py-2.5 text-[13px] text-dim transition-colors hover:text-text"
+                title="Durable execution history for this run"
+              >
+                Workflow ↗
+              </a>
+            )}
             <button
               onClick={onReset}
               className="rounded-lg border border-edge px-4 py-2.5 text-[13px] text-dim transition-colors hover:text-text"

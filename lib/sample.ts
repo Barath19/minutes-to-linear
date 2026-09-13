@@ -1,39 +1,55 @@
-export const SAMPLE_NOTES = `Platform sync — Tuesday 10:00
+/**
+ * The example meeting.
+ *
+ * Deliberately contains one of each case the agent has to tell apart:
+ * a commitment, a blocked commitment, a decision with no work attached, a
+ * decision that does create work, something explicitly parked, an urgent
+ * interrupt, a low-priority item, and status chatter that must be ignored.
+ */
+export const SAMPLE_NOTES = `Platform weekly — 14 Sept
 
-MAYA: Auth first. We agreed last week we're moving off session cookies onto
-OIDC and nothing has moved. Priya, you were scoping it.
+RAY: Starting with auth, because it's been open three weeks. Nadia, where did
+the OIDC migration land?
 
-PRIYA: Scoped. It's bigger than we thought — the mobile clients hardcode the
-cookie name in three places. I'd split it: server-side OIDC first, then mobile
-separately. I'll take the server half this sprint.
+NADIA: Bigger than we scoped. The mobile clients read the cookie name directly
+in three places, so it can't be one change. Server-side first, mobile after.
+I'll take the server side this sprint.
 
-MAYA: Do it. Who owns mobile?
+RAY: Good. Who has mobile?
 
-DEV: I'll take mobile, but I can't start until Priya's endpoints exist.
+TOM: Me — but I can't start until Nadia's endpoints are live, so don't count it
+this sprint.
 
-MAYA: Fine, it waits on hers. Second thing — Friday's incident. Forty minutes
-down because nobody could find the runbook.
+RAY: Understood, it waits on hers. Next: Friday's outage.
 
-DEV: There is no runbook. That's the actual problem.
+TOM: Thirty-eight minutes, and most of that was us looking for a runbook that
+doesn't exist.
 
-MAYA: Then that's on you, Dev. Write it, put it in the repo next to the deploy
-config so it's version controlled.
+RAY: Then write one, Tom. In the repo next to the deploy config so it's
+reviewed like everything else.
 
-PRIYA: Can we settle the rate limiter? Three weeks of going back and forth.
+NADIA: Can we close out the rate limiter? It's been reopened twice.
 
-MAYA: Decision: token bucket. We stop discussing it.
+RAY: Token bucket. That's decided, we're not revisiting it.
 
-PRIYA: Half the backend team thinks we picked sliding window.
+NADIA: Half the team still thinks we went with sliding window.
 
-MAYA: I'll write up the decision so nobody reopens it.
+RAY: Fair. I'll write the decision up so there's something to point at.
 
-DEV: Staging database has been full for a week and everyone's ignoring it.
+TOM: Small one — staging has been at 98% disk for a week and everyone's
+stepped around it.
 
-MAYA: Ticket it, low priority, but I want it tracked so it stops being invisible.
+RAY: Log it. Low priority, but I want it visible instead of folklore.
 
-DEV: Also — should we upgrade to Postgres 17?
+NADIA: Quick status, nothing needed — the search reindex finished Tuesday and
+the cache hit rate is up about nine points since.
 
-MAYA: Not now. Park it, we'll revisit after the auth work lands.
+RAY: Noted. Anything else?
 
-MAYA: Last thing, this is urgent — the billing webhook is retrying forever and
-saturating the pool. Sam, cap it at 5 retries today. Drop everything else.`;
+TOM: Should we move to Postgres 17?
+
+RAY: Not now. Park it — we'll revisit once the auth work is actually shipped.
+
+RAY: Last thing, and this one's today: the billing webhook is retrying without
+a ceiling and it's eating the connection pool. Sam, cap it at five and ship it
+this afternoon. Everything else can wait.`;

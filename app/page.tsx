@@ -51,6 +51,7 @@ export default function Page() {
   const [armed, setArmed] = useState(false);
   // Armed when a plan is ready to review, so the whole run is hands-free.
   const [approvalArmed, setApprovalArmed] = useState(false);
+  const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [slack, setSlack] = useState<SlackOutcome | null>(null);
   const [slackPosting, setSlackPosting] = useState(false);
   const [bookings, setBookings] = useState<Record<string, BookingOutcome>>({});
@@ -176,6 +177,7 @@ export default function Page() {
         setStates((s) => ({ ...s, [e.ticketId]: 'error' }));
         setErrors((x) => ({ ...x, [e.ticketId]: e.error }));
       }
+      if (e.type === 'start' && 'workflowId' in e) setWorkflowId((e as { workflowId?: string }).workflowId ?? null);
       if (e.type === 'booking.start') setBookingPending(e.followUpId);
       if (e.type === 'booking.done') {
         setBookingPending(null);
@@ -467,6 +469,7 @@ export default function Page() {
               meetingCount={includedFollowUps.length}
               armed={approvalArmed}
               onCancelArm={() => setApprovalArmed(false)}
+              workflowId={workflowId}
               onApprove={create}
               onReset={reset}
             />
