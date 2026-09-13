@@ -45,12 +45,12 @@ export function TicketCard({
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className={`group rounded-lg border bg-surface transition-colors ${
         state === 'created'
-          ? 'border-accent/45'
+          ? 'border-accent/35 bg-accent/[0.04]'
           : state === 'error'
-            ? 'border-danger/55'
+            ? 'border-danger/50 bg-danger/[0.04]'
             : state === 'creating'
-              ? 'border-accent'
-              : 'border-edge hover:border-edge/80'
+              ? 'border-accent bg-accent/[0.06]'
+              : 'border-edge hover:border-edge-bright'
       }`}
     >
       <div className="flex items-start gap-3 p-3.5">
@@ -82,7 +82,7 @@ export function TicketCard({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-bright hover:bg-accent/25"
+                className="shrink-0 rounded bg-accent px-1.5 py-0.5 font-mono text-[11px] text-white hover:opacity-80"
               >
                 {identifier}
               </a>

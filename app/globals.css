@@ -1,32 +1,32 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Black, white, purple. Everything else is a tint of one of the three. */
-  --color-bg: #08080a;
-  --color-surface: #101014;
-  --color-surface-2: #17171d;
-  --color-edge: #24242e;
-  --color-edge-bright: #34343f;
+  /* White paper, black ink. Grey is the only gradient between them. */
+  --color-bg: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-2: #f4f4f5;
+  --color-edge: #e6e6ea;
+  --color-edge-bright: #d3d3d9;
 
-  --color-text: #f4f4f7;
-  --color-dim: #85858f;
+  --color-text: #0a0a0b;
+  --color-dim: #71717a;
 
-  --color-accent: #7c5cff;
-  --color-accent-bright: #a18cff;
-  --color-accent-deep: #5836d6;
+  --color-accent: #0a0a0b;
+  --color-accent-bright: #27272a;
+  --color-accent-deep: #000000;
 
-  /* Priority is a purple ramp cooling to grey rather than a traffic light. */
-  --color-p-urgent: #b9a5ff;
-  --color-p-high: #8f74ff;
-  --color-p-medium: #6b53c9;
-  --color-p-low: #4a4a58;
+  /* Priority is weight, not hue: solid black down to pale grey. */
+  --color-p-urgent: #0a0a0b;
+  --color-p-high: #3f3f46;
+  --color-p-medium: #71717a;
+  --color-p-low: #a1a1aa;
 
   /*
-   * The one exception to the three-colour rule. A failure that looks like every
-   * other state is a usability bug, so errors keep a hue of their own —
-   * desaturated enough to sit inside the palette rather than fight it.
+   * The single exception to black and white. A failure that looks like every
+   * other state is a usability bug, so errors keep a hue — dark enough to hold
+   * contrast on white rather than glowing.
    */
-  --color-danger: #e06c75;
+  --color-danger: #c0392b;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-geist), ui-monospace, monospace;
@@ -42,11 +42,13 @@
     font-family: var(--font-sans);
   }
   ::selection {
-    background: color-mix(in oklab, var(--color-accent) 40%, transparent);
+    background: var(--color-text);
+    color: var(--color-bg);
   }
   textarea,
   input {
     font-family: inherit;
+    color: inherit;
   }
   textarea:focus,
   input:focus {
@@ -66,17 +68,12 @@
   background: transparent;
 }
 
-/* A single purple wash, so the page has depth without a second hue. */
+/*
+ * A faint grey wash so large white areas have some depth. Deliberately weak —
+ * on a light theme, anything stronger reads as a smudge.
+ */
 .aura {
   background-image:
-    radial-gradient(
-      58rem 30rem at 12% -8%,
-      color-mix(in oklab, var(--color-accent) 16%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      44rem 26rem at 96% 4%,
-      color-mix(in oklab, var(--color-accent-deep) 14%, transparent),
-      transparent
-    );
+    radial-gradient(56rem 28rem at 10% -10%, rgb(0 0 0 / 0.035), transparent),
+    radial-gradient(44rem 24rem at 98% 0%, rgb(0 0 0 / 0.025), transparent);
 }

@@ -32,7 +32,7 @@ export function ConnectionPill({
       title={connected ? `Connected — ${label}` : (reason ?? 'Not connected')}
       className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] whitespace-nowrap ${
         connected
-          ? 'border-accent/40 bg-accent/10 text-accent-bright'
+          ? 'border-transparent bg-accent text-white'
           : 'border-edge text-dim'
       }`}
     >
@@ -45,7 +45,7 @@ export function ConnectionPill({
           className="size-1.5 rounded-full bg-dim"
         />
       ) : (
-        <span className={`size-1.5 rounded-full ${connected ? 'bg-accent-bright' : 'bg-dim'}`} />
+        <span className={`size-1.5 rounded-full ${connected ? 'bg-white' : 'bg-dim'}`} />
       )}
     </motion.span>
   );

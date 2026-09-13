@@ -34,7 +34,7 @@ export function FollowUpCard({
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className={`rounded-lg border p-3.5 ${
         booking?.ok
-          ? 'border-accent/45 bg-accent/[0.07]'
+          ? 'border-accent/35 bg-accent/[0.05]'
           : booking && !booking.ok
             ? 'border-danger/55 bg-surface'
             : 'border-edge bg-surface'
@@ -73,7 +73,7 @@ export function FollowUpCard({
                 href={booking.url}
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-bright hover:bg-accent/25"
+                className="shrink-0 rounded bg-accent-deep px-1.5 py-0.5 font-mono text-[11px] text-white hover:opacity-80"
               >
                 booked
               </a>
