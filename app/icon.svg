@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#5E6AD2"/>
+  <rect width="32" height="32" rx="8" fill="#0A0A0B"/>
   <!-- Notes condensing into a single tracked item. -->
-  <rect x="8" y="9" width="12" height="2" rx="1" fill="#fff" opacity=".55"/>
-  <rect x="8" y="14" width="9" height="2" rx="1" fill="#fff" opacity=".55"/>
+  <rect x="8" y="9" width="12" height="2" rx="1" fill="#fff" opacity=".5"/>
+  <rect x="8" y="14" width="9" height="2" rx="1" fill="#fff" opacity=".5"/>
   <path d="M13 22.2l2.6 2.6L24 16.4" stroke="#fff" stroke-width="2.6"
         stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>

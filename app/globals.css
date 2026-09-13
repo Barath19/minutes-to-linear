@@ -31,6 +31,7 @@
   /* Connected. Universal enough to be worth the exception. */
   --color-live: #16a34a;
 
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-geist), ui-monospace, monospace;
 }

@@ -229,11 +229,12 @@ export default function Page() {
         {/* Notes */}
         <section className="flex min-h-0 min-w-0 flex-col gap-3">
           <header className="flex flex-wrap items-center gap-2.5">
-            <div className="grid size-7 place-items-center rounded-md bg-accent text-[13px] font-semibold">
+            <div className="grid size-7 place-items-center rounded-md bg-accent font-display text-[15px] leading-none text-white">
               N
             </div>
-            <h1 className="text-[15px] font-semibold">
-              Neuva <span className="text-dim">· notes that file themselves</span>
+            <h1 className="flex items-baseline gap-2">
+              <span className="font-display text-[22px] leading-none tracking-tight">Neuva</span>
+              <span className="text-[12px] text-dim">notes that file themselves</span>
             </h1>
 
             {/* Where an approval will actually write. */}
