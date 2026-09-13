@@ -1,8 +1,29 @@
 # Neuva
 
-An agent that reads a meeting, works out what it committed you to, and files it — issues in
+**An agent that reads a meeting, works out what it committed you to, and files it** — issues in
 Linear, follow-up meetings on your calendar, and a digest to the team. With a human approval
 step before anything is written.
+
+### 📺 [Two-minute demo](https://youtu.be/Co7SFZgiTnk) · 💻 [Repository](https://github.com/Barath19/neuva) (public)
+
+---
+
+## Submission checklist
+
+| Requirement | Where |
+|---|---|
+| ✅ Project overview | [What it does](#what-it-does) · [Why it gets the hard cases right](#why-it-gets-the-hard-cases-right) |
+| ✅ External apps used | [External applications](#external-applications) — Notion, Linear, Cal.com, Slack |
+| ✅ Setup instructions | [Setup](#setup) — env table, plus the four traps that look like broken credentials |
+| ✅ How reliability was tested | [Evaluation](#evaluation) — 114/114 structural checks + an independent local LLM judge |
+| ✅ Two-minute demo | **https://youtu.be/Co7SFZgiTnk** |
+| ✅ Judges can access the repo | Public, no credentials needed to clone |
+| ✅ Multi-step across 3+ apps | One approval drives four apps: import from Notion, then write to Linear, Cal.com and Slack |
+
+**Architecture:** [`docs/architecture.excalidraw`](docs/architecture.excalidraw) —
+[open in Excalidraw](https://excalidraw.com/#json=zgc6EeuptA-23MxnWfsXG,4X_0lXJSR_jlhRWIQiv_bA)
+
+---
 
 The interesting part is not "LLM makes tickets." It is everything the agent decides **not** to
 do. Work that was explicitly parked, decisions with no action attached, and status chatter all
@@ -22,11 +43,6 @@ Notion page ──▶ enumerate ──▶ draft ──▶ YOU APPROVE ──▶ 
 
 Nothing reaches an external app until you approve. Every ticket carries the verbatim sentence
 it came from, so you can check the agent's work without re-reading the notes.
-
-**Architecture:** [`docs/architecture.excalidraw`](docs/architecture.excalidraw) — open it at
-[excalidraw.com](https://excalidraw.com) via File -> Open.
-
----
 
 ## External applications
 
