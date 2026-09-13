@@ -43,7 +43,7 @@ export function TicketCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: included ? 1 : 0.4, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className={`group rounded-lg border bg-surface transition-colors ${
+      className={`group rounded-lg border panel transition-colors ${
         state === 'created'
           ? 'border-accent/35 bg-accent/[0.04]'
           : state === 'error'

@@ -240,16 +240,16 @@ export default function Page() {
             <div className="ml-auto flex flex-wrap items-center gap-1.5">
               <ConnectionPill
                 icon={<NotionMark className="size-3" />}
-                label={team?.notion?.connected ? 'Notion' : 'Notion'}
+                label="Notion"
                 connected={team?.notion?.connected}
                 reason={team?.notion?.reason}
                 pending={!team}
               />
               <ConnectionPill
                 icon={<LinearMark className="size-3" />}
-                label={team?.connected ? (team.projectName ?? team.teamName ?? 'Linear') : 'Linear'}
+                label="Linear"
                 connected={team?.connected}
-                reason={team?.reason}
+                reason={team?.reason ?? (team?.projectName ? `Writing to ${team.projectName}` : undefined)}
                 pending={!team}
               />
               <ConnectionPill
@@ -261,9 +261,9 @@ export default function Page() {
               />
               <ConnectionPill
                 icon={<SlackMark className="size-3" />}
-                label={team?.slack?.connected ? (team.slack.team ?? 'Slack') : 'Slack'}
+                label="Slack"
                 connected={team?.slack?.connected}
-                reason={team?.slack?.reason}
+                reason={team?.slack?.reason ?? (team?.slack?.team ? `Posting to ${team.slack.team}` : undefined)}
                 pending={!team}
               />
             </div>
@@ -307,7 +307,7 @@ export default function Page() {
             disabled={busy}
             spellCheck={false}
             placeholder="Paste your meeting notes, or import them from Notion…"
-            className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-accent disabled:opacity-60"
+            className="min-h-[240px] flex-1 resize-none lg:min-h-0 rounded-lg border border-edge panel p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-accent disabled:opacity-60"
           />
 
           <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export default function Page() {
           </div>
 
           {extraction?.summary && (
-            <p className="rounded-lg border border-edge bg-surface/60 p-3 text-[12.5px] leading-relaxed text-dim">
+            <p className="rounded-lg border border-edge panel p-3 text-[12.5px] leading-relaxed text-dim">
               {extraction.summary}
             </p>
           )}
@@ -437,7 +437,7 @@ export default function Page() {
 
             {/* Decisions are recorded but deliberately not ticketed. */}
             {extraction?.decisions && extraction.decisions.length > 0 && (
-              <div className="mt-4 rounded-lg border border-edge bg-surface/50 p-3.5">
+              <div className="mt-4 rounded-lg border border-edge panel/50 p-3.5">
                 <p className="mb-2 text-[11px] tracking-wider text-dim uppercase">
                   Decisions — noted, not ticketed
                 </p>

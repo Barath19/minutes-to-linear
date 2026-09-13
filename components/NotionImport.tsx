@@ -91,7 +91,7 @@ export function NotionImport({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18 }}
-            className="absolute top-full right-0 z-30 mt-1.5 w-80 overflow-hidden rounded-lg border border-edge bg-surface-2 shadow-xl"
+            className="absolute top-full right-0 z-30 mt-1.5 w-80 overflow-hidden rounded-lg border border-edge panel shadow-xl"
           >
             <div className="flex items-center gap-2 border-b border-edge px-3 py-2">
               <span className="text-[11px] font-medium">Recent pages</span>

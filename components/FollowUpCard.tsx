@@ -36,8 +36,8 @@ export function FollowUpCard({
         booking?.ok
           ? 'border-accent/35 bg-accent/[0.05]'
           : booking && !booking.ok
-            ? 'border-danger/55 bg-surface'
-            : 'border-edge bg-surface'
+            ? 'border-danger/55 panel'
+            : 'border-edge panel'
       }`}
     >
       <div className="flex items-start gap-3">
