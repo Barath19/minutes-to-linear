@@ -81,8 +81,19 @@ cp .env.example .env.local     # add ANTHROPIC_API_KEY and LINEAR_API_KEY
 pnpm dev                       # http://localhost:3000
 ```
 
-The header shows which Linear team is connected, or why it isn't. `LINEAR_TEAM_ID` is optional —
-it defaults to the first team the key can see.
+The header names the destination issues will be written to, or explains why it cannot connect.
+
+| Variable | Required | Notes |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | yes | Workspace-scoped. An org-level key also works with `ANTHROPIC_WORKSPACE_ID`. |
+| `LINEAR_API_KEY` | yes | Personal API key. |
+| `LINEAR_TEAM_ID` | no | Defaults to the first team the key can see. |
+| `LINEAR_PROJECT_ID` | no | Files every issue under one project instead of the team backlog. |
+
+> `LINEAR_PROJECT_ID` is the project's **UUID**, not the short id in its URL. A Linear project
+> URL ends in a slug like `…/multiapp-project-bd502c1a1457`, and that trailing id is *not* the
+> one the API accepts. Query `projects { nodes { id name } }` to find the real one. A wrong
+> value fails soft — issues still file to the team rather than the app falling over.
 
 | Route | Purpose |
 |---|---|
