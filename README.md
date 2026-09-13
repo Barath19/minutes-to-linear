@@ -23,6 +23,9 @@ Notion page ──▶ enumerate ──▶ draft ──▶ YOU APPROVE ──▶ 
 Nothing reaches an external app until you approve. Every ticket carries the verbatim sentence
 it came from, so you can check the agent's work without re-reading the notes.
 
+**Architecture:** [`docs/architecture.excalidraw`](docs/architecture.excalidraw) — open it at
+[excalidraw.com](https://excalidraw.com) via File -> Open.
+
 ---
 
 ## External applications
