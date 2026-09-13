@@ -1,3 +1,8 @@
+# Keep the virtual store inside the project: pnpm's global store symlinks
+# packages outside the project root, which Turbopack refuses to compile.
+enableGlobalVirtualStore: false
+
 allowBuilds:
-  sharp: false
-  unrs-resolver: false
+  esbuild: true
+  unrs-resolver: true
+  sharp: true

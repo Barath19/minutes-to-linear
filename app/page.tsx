@@ -1,69 +1,300 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { AnimatePresence, motion } from 'motion/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { TicketCard, type TicketState } from '@/components/TicketCard';
+import { readNdjson } from '@/lib/ndjson';
+import { SAMPLE_NOTES } from '@/lib/sample';
+import type { CreatedIssue, CreateEvent, Extraction, Ticket } from '@/lib/types';
+
+type Phase = 'idle' | 'extracting' | 'review' | 'creating' | 'done';
+
+type TeamInfo = { connected: boolean; teamName?: string; reason?: string };
+
+export default function Page() {
+  const [notes, setNotes] = useState(SAMPLE_NOTES);
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [extraction, setExtraction] = useState<Partial<Extraction> | null>(null);
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  const [states, setStates] = useState<Record<string, TicketState>>({});
+  const [results, setResults] = useState<Record<string, CreatedIssue>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [team, setTeam] = useState<TeamInfo | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/team')
+      .then((r) => r.json())
+      .then(setTeam)
+      .catch(() => setTeam({ connected: false, reason: 'could not reach /api/team' }));
+  }, []);
+
+  const tickets = useMemo(
+    () =>
+      (extraction?.tickets ?? []).filter(
+        (t): t is Ticket => Boolean(t?.id && t?.title),
+      ),
+    [extraction],
+  );
+
+  const included = useMemo(
+    () => tickets.filter((t) => !excluded.has(t.id)),
+    [tickets, excluded],
+  );
+
+  const extract = useCallback(async () => {
+    setPhase('extracting');
+    setExtraction(null);
+    setStates({});
+    setResults({});
+    setErrors({});
+    setExcluded(new Set());
+    setProblem(null);
+
+    const res = await fetch('/api/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes }),
+    });
+
+    if (!res.ok) {
+      const b = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      setProblem(b.error ?? 'extraction failed');
+      setPhase('idle');
+      return;
+    }
+
+    let failure: string | null = null;
+    await readNdjson<{ type: string; extraction?: Partial<Extraction>; error?: string }>(
+      res,
+      (e) => {
+        if (e.type === 'partial' && e.extraction) setExtraction(e.extraction);
+        if (e.type === 'error') failure = e.error ?? 'unknown error';
+      },
+    );
+
+    if (failure) {
+      setProblem(failure);
+      setPhase('idle');
+      return;
+    }
+    setPhase('review');
+  }, [notes]);
+
+  const create = useCallback(async () => {
+    if (included.length === 0) return;
+    setPhase('creating');
+    setProblem(null);
+
+    const res = await fetch('/api/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tickets: included }),
+    });
+
+    if (!res.ok) {
+      const b = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      setProblem(b.error ?? 'creation failed');
+      setPhase('review');
+      return;
+    }
+
+    await readNdjson<CreateEvent>(res, (e) => {
+      if (e.type === 'issue.start') setStates((s) => ({ ...s, [e.ticketId]: 'creating' }));
+      if (e.type === 'issue.done') {
+        setStates((s) => ({ ...s, [e.issue.ticketId]: 'created' }));
+        setResults((r) => ({ ...r, [e.issue.ticketId]: e.issue }));
+      }
+      if (e.type === 'issue.error') {
+        setStates((s) => ({ ...s, [e.ticketId]: 'error' }));
+        setErrors((x) => ({ ...x, [e.ticketId]: e.error }));
+      }
+      if (e.type === 'done') setPhase('done');
+    });
+  }, [included]);
+
+  const reset = () => {
+    setPhase('idle');
+    setExtraction(null);
+    setStates({});
+    setResults({});
+    setErrors({});
+    setExcluded(new Set());
+    setProblem(null);
+  };
+
+  const editTicket = (id: string, patch: Partial<Ticket>) =>
+    setExtraction((ex) =>
+      ex
+        ? { ...ex, tickets: (ex.tickets ?? []).map((t) => (t?.id === id ? { ...t, ...patch } : t)) }
+        : ex,
+    );
+
+  const createdCount = Object.keys(results).length;
+  const busy = phase === 'extracting' || phase === 'creating';
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="aura min-h-dvh">
+      <div className="mx-auto grid min-h-dvh max-w-[1500px] grid-cols-1 gap-6 p-5 lg:grid-cols-[440px_1fr]">
+        {/* Notes */}
+        <section className="flex min-h-0 flex-col gap-3">
+          <header className="flex items-center gap-2.5">
+            <div className="grid size-7 place-items-center rounded-md bg-brand text-[13px] font-semibold">
+              M
+            </div>
+            <h1 className="text-[15px] font-semibold">
+              Minutes <span className="text-dim">→ Linear</span>
+            </h1>
+            <span
+              className={`ml-auto flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
+                team?.connected
+                  ? 'border-emerald-500/30 text-emerald-300'
+                  : 'border-edge text-dim'
+              }`}
+              title={team?.reason}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <span
+                className={`size-1.5 rounded-full ${team?.connected ? 'bg-emerald-400' : 'bg-dim'}`}
+              />
+              {team?.connected ? team.teamName : 'not connected'}
+            </span>
+          </header>
+
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={busy}
+            spellCheck={false}
+            placeholder="Paste your meeting notes…"
+            className="min-h-[320px] flex-1 resize-none rounded-lg border border-edge bg-surface p-4 font-mono text-[12px] leading-relaxed text-text/90 placeholder:text-dim/50 focus:border-brand disabled:opacity-60"
+          />
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={extract}
+              disabled={busy || !notes.trim()}
+              className="flex-1 rounded-lg bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-35"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              {phase === 'extracting' ? 'Reading notes…' : 'Extract tickets'}
+            </button>
+            {phase !== 'idle' && (
+              <button
+                onClick={reset}
+                disabled={busy}
+                className="rounded-lg border border-edge px-3 py-2.5 text-[13px] text-dim transition-colors hover:text-text disabled:opacity-40"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {problem && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="rounded-lg border border-red-500/40 bg-red-500/10 p-2.5 text-[12px] text-red-300"
+              >
+                {problem}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </section>
+
+        {/* Tickets */}
+        <section className="flex min-h-0 flex-col gap-3">
+          <div className="flex min-h-9 items-center gap-3">
+            <h2 className="text-[13px] font-medium">
+              {extraction?.meetingTitle ?? 'Tickets'}
+            </h2>
+            {tickets.length > 0 && (
+              <span className="text-[12px] text-dim">
+                {included.length} of {tickets.length} selected
+              </span>
+            )}
+            {phase === 'done' && (
+              <span className="text-[12px] text-emerald-300">
+                {createdCount} created in Linear
+              </span>
+            )}
+
+            {(phase === 'review' || phase === 'creating' || phase === 'done') && (
+              <button
+                onClick={create}
+                disabled={busy || included.length === 0 || phase === 'done'}
+                className="ml-auto rounded-lg bg-emerald-500 px-4 py-2 text-[13px] font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-30"
+              >
+                {phase === 'creating'
+                  ? 'Creating…'
+                  : phase === 'done'
+                    ? 'Created'
+                    : `Create ${included.length} in Linear`}
+              </button>
+            )}
+          </div>
+
+          {extraction?.summary && (
+            <p className="rounded-lg border border-edge bg-surface/60 p-3 text-[12.5px] leading-relaxed text-dim">
+              {extraction.summary}
+            </p>
+          )}
+
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+            {tickets.length === 0 && (
+              <div className="grid h-64 place-items-center rounded-lg border border-dashed border-edge">
+                <p className="max-w-xs text-center text-[13px] leading-relaxed text-dim">
+                  {phase === 'extracting'
+                    ? 'Reading the notes…'
+                    : 'Tickets appear here for review. Nothing reaches Linear until you approve.'}
+                </p>
+              </div>
+            )}
+
+            <AnimatePresence mode="popLayout">
+              {tickets.map((t) => (
+                <TicketCard
+                  key={t.id}
+                  ticket={t}
+                  state={states[t.id] ?? 'draft'}
+                  identifier={results[t.id]?.identifier}
+                  url={results[t.id]?.url}
+                  error={errors[t.id]}
+                  included={!excluded.has(t.id)}
+                  onToggle={() =>
+                    setExcluded((s) => {
+                      const n = new Set(s);
+                      if (n.has(t.id)) n.delete(t.id);
+                      else n.add(t.id);
+                      return n;
+                    })
+                  }
+                  onEdit={(patch) => editTicket(t.id, patch)}
+                  blockedTitles={(t.blockedBy ?? [])
+                    .map((id) => tickets.find((x) => x.id === id)?.title)
+                    .filter((x): x is string => Boolean(x))}
+                />
+              ))}
+            </AnimatePresence>
+
+            {/* Decisions are recorded but deliberately not ticketed. */}
+            {extraction?.decisions && extraction.decisions.length > 0 && (
+              <div className="mt-4 rounded-lg border border-edge bg-surface/50 p-3.5">
+                <p className="mb-2 text-[11px] tracking-wider text-dim uppercase">
+                  Decisions — noted, not ticketed
+                </p>
+                <ul className="space-y-1.5">
+                  {extraction.decisions.map((d, i) => (
+                    <li key={i} className="text-[12.5px] leading-relaxed text-dim">
+                      · {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
